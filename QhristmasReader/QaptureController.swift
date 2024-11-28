@@ -1,5 +1,6 @@
 import AVFoundation
 import UIKit
+import VectorExtor
 
 class QaptureController: UIViewController {
 	protocol Delegate: AnyObject {
@@ -7,6 +8,7 @@ class QaptureController: UIViewController {
 	}
 
 	private var previewLayer: AVCaptureVideoPreviewLayer?
+	private var outlineLayer: CAShapeLayer?
 
 	weak var delegate: Delegate?
 
@@ -36,9 +38,17 @@ class QaptureController: UIViewController {
 
 		let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
 		previewLayer.frame = view.layer.bounds
-		previewLayer.videoGravity = .resizeAspectFill
+		previewLayer.videoGravity = .resizeAspect
 		view.layer.addSublayer(previewLayer)
 		self.previewLayer = previewLayer
+
+		let outline = CAShapeLayer()
+		outline.strokeColor = UIColor.systemBlue.cgColor
+		outline.fillColor = UIColor.clear.cgColor
+		outline.lineWidth = 3
+		outline.frame = view.layer.bounds
+		self.outlineLayer = outline
+		view.layer.addSublayer(outline)
 
 		Task.detached {
 			captureSession.startRunning()
@@ -70,6 +80,27 @@ extension QaptureController: AVCaptureMetadataOutputObjectsDelegate {
 		else { return }
 		lastCapture = .now
 
+//		if case let points = readableObject.corners, points.isEmpty == false, let first = points.first {
+//			let size = view.layer.bounds.size
+//			let path = CGMutablePath()
+//			path.move(to: first.swapXAndY() * size)
+//
+//			for point in points.dropFirst() {
+//				path.addLine(to: point.swapXAndY() * size)
+//			}
+//			path.closeSubpath()
+//
+//			outlineLayer?.path = path
+//		} else {
+//			outlineLayer?.path = nil
+//		}
+
 		delegate?.qaptureController(self, didCaptureID: id)
+	}
+}
+
+extension CGPoint {
+	func swapXAndY() -> CGPoint {
+		CGPoint(x: y, y: x)
 	}
 }

@@ -1,0 +1,15 @@
+{
+  "originHash" : "f294daf835da999c881d2692fb581f618a12f22e3e28262eacaa511007b169a1",
+  "pins" : [
+    {
+      "identity" : "vectorextor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mredig/VectorExtor",
+      "state" : {
+        "revision" : "18406af1d8baea5ba5860c13dd70bc86489dbcc0",
+        "version" : "0.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}

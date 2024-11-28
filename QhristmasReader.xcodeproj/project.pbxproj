@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		33E5E4702CF867F9007155F7 /* VectorExtor in Frameworks */ = {isa = PBXBuildFile; productRef = 33E5E46F2CF867F9007155F7 /* VectorExtor */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		33E5E3E02CF82F1A007155F7 /* QhristmasReader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QhristmasReader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33E5E4702CF867F9007155F7 /* VectorExtor in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = QhristmasReader;
 			packageProductDependencies = (
+				33E5E46F2CF867F9007155F7 /* VectorExtor */,
 			);
 			productName = QhristmasReader;
 			productReference = 33E5E3E02CF82F1A007155F7 /* QhristmasReader.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = 33E5E3D72CF82F1A007155F7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				33E5E46E2CF867F9007155F7 /* XCRemoteSwiftPackageReference "VectorExtor" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 33E5E3E12CF82F1A007155F7 /* Products */;
 			projectDirPath = "";
@@ -270,10 +279,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QhristmasReader/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to scan QR codes";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -300,10 +311,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QhristmasReader/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to scan QR codes";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -339,6 +352,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		33E5E46E2CF867F9007155F7 /* XCRemoteSwiftPackageReference "VectorExtor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mredig/VectorExtor";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		33E5E46F2CF867F9007155F7 /* VectorExtor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 33E5E46E2CF867F9007155F7 /* XCRemoteSwiftPackageReference "VectorExtor" */;
+			productName = VectorExtor;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 33E5E3D82CF82F1A007155F7 /* Project object */;
 }
