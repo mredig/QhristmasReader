@@ -36,12 +36,21 @@ class QaptureController: UIViewController {
 
 		let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
 		previewLayer.frame = view.layer.bounds
-		previewLayer.videoGravity = .resize
+		previewLayer.videoGravity = .resizeAspectFill
 		view.layer.addSublayer(previewLayer)
 		self.previewLayer = previewLayer
 
 		Task.detached {
 			captureSession.startRunning()
+		}
+	}
+
+	override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+		super.viewWillTransition(to: size, with: coordinator)
+
+		coordinator.animate { [self] context in
+			print(context.percentComplete)
+			previewLayer?.frame = view.layer.bounds
 		}
 	}
 }
