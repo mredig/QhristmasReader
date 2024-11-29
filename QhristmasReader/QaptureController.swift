@@ -34,7 +34,7 @@ class QaptureController: UIViewController {
 		guard captureSession.canAddOutput(metadataOutput) else { return }
 		metadataOutput.setMetadataObjectsDelegate(self, queue: .main)
 		captureSession.addOutput(metadataOutput)
-		metadataOutput.metadataObjectTypes = [.qr]
+		metadataOutput.metadataObjectTypes = [.qr, .code128, .pdf417, .microPDF417, .microQR]
 
 		let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
 		previewLayer.frame = view.layer.bounds
