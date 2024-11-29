@@ -2,6 +2,8 @@ import SwiftUI
 import AVFoundation
 
 struct QRCodeScannerView: UIViewControllerRepresentable {
+	var didFindCode: (UUID) -> Void
+
 	class Coordinator: NSObject, QaptureController.Delegate {
 		var parent: QRCodeScannerView
 
@@ -11,11 +13,9 @@ struct QRCodeScannerView: UIViewControllerRepresentable {
 
 		func qaptureController(_ qaptureController: QaptureController, didCaptureID uuid: UUID) {
 			AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-			parent.didFindCode(uuid.uuidString)
+			parent.didFindCode(uuid)
 		}
 	}
-
-	var didFindCode: (String) -> Void
 
 	func makeCoordinator() -> Coordinator {
 		return Coordinator(parent: self)
