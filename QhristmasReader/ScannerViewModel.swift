@@ -2,7 +2,6 @@ import SwiftUI
 
 @Observable
 class ScannerViewModel {
-
 	enum State {
 		case capturingImage(UUID)
 		case scanningCodes
@@ -11,11 +10,32 @@ class ScannerViewModel {
 
 	var state: State = .scanningCodes
 
+	var storedItems: [URL]
+
 	static private let storageDirectory: URL = .applicationSupportDirectory.appending(component: "Images")
+
+	init() {
+		self.storedItems = Self.storedItems()
+	}
 
 	static private func url(for id: UUID) -> URL {
 		storageDirectory.appending(component: id.uuidString.lowercased()).appendingPathExtension("jpg")
 	}
+
+	static private func storedItems() -> [URL] {
+		do {
+			let content = try FileManager
+				.default
+				.contentsOfDirectory(at: storageDirectory, includingPropertiesForKeys: nil)
+				.filter { $0.pathExtension == "jpg" }
+				.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+			
+			return content
+		} catch {
+			print("Error listing content: \(error)")
+			return []
+		}
+	}	
 
 	func foundCode(_ code: UUID) {
 		let url = Self.url(for: code)
@@ -51,6 +71,7 @@ class ScannerViewModel {
 		do {
 			try FileManager.default.createDirectory(at: Self.storageDirectory, withIntermediateDirectories: true)
 			try imageData.write(to: url)
+			storedItems.append(url)
 		} catch {
 			print("Cant save cuz \(error.localizedDescription)")
 		}

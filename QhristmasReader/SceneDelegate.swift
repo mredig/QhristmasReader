@@ -7,12 +7,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	let navigationController = UINavigationController(rootViewController: UIViewController())
 
+	let viewModel = ScannerViewModel()
+
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 		guard let windowScene = scene as? UIWindowScene else { return }
 		let window = UIWindow(windowScene: windowScene)
 		self.window = window
 
-		let cameraVC = UIHostingController(rootView: ContentView())
+		let cameraVC = UIHostingController(rootView: StoredItemList(viewModel: viewModel, coordinator: self))
 		navigationController.setViewControllers([cameraVC], animated: false)
 		window.rootViewController = navigationController
 
@@ -45,5 +47,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		// Called as the scene transitions from the foreground to the background.
 		// Use this method to save data, release shared resources, and store enough scene-specific state information
 		// to restore the scene back to its current state.
+	}
+}
+
+extension SceneDelegate: StoredItemList.Coordinator {
+	func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL) {
+		print(item)
 	}
 }
