@@ -2,6 +2,11 @@ import SwiftUI
 
 @Observable
 class ScannerViewModel {
+	protocol Delegate: AnyObject {
+		func scannerViewModel(_ scannerViewModel: ScannerViewModel, didFindCodeMatch code: UUID, withImage image: UIImage)
+		func scannerViewModel(_ scannerViewModel: ScannerViewModel, didNotFindCodeMatch code: UUID)
+	}
+
 	enum State {
 		case capturingImage(UUID)
 		case scanningCodes
@@ -11,6 +16,8 @@ class ScannerViewModel {
 	var state: State = .scanningCodes
 
 	var storedItems: [URL]
+
+	weak var delegate: Delegate?
 
 	static private let storageDirectory: URL = .applicationSupportDirectory.appending(component: "Images")
 
@@ -46,8 +53,10 @@ class ScannerViewModel {
 				let image = UIImage(data: imageData)
 			else { throw Error.notImage }
 			showImage(image)
+			delegate?.scannerViewModel(self, didFindCodeMatch: code, withImage: image)
 		} catch {
 			askToCaptureImage(for: code)
+			delegate?.scannerViewModel(self, didNotFindCodeMatch: code)
 		}
 	}
 
@@ -59,9 +68,17 @@ class ScannerViewModel {
 		state = .capturingImage(id)
 	}
 
-	func storeImage(_ image: UIImage?, for id: UUID) {
+	func storeImage(_ image: UIImage?, for id: UUID?) {
 		defer { state = .scanningCodes }
 		guard let image else { return }
+		let id: UUID? = {
+			if let id { return id }
+			guard case .capturingImage(let id) = state else {
+				return nil
+			}
+			return id
+		}()
+		guard let id else { return }
 
 		guard
 			let imageData = image.jpegData(compressionQuality: 0.85)
