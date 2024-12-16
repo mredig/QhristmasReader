@@ -23,31 +23,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	}
 
 	func sceneDidDisconnect(_ scene: UIScene) {}
-
 	func sceneDidBecomeActive(_ scene: UIScene) {}
-
 	func sceneWillResignActive(_ scene: UIScene) {}
-
 	func sceneWillEnterForeground(_ scene: UIScene) {}
-
 	func sceneDidEnterBackground(_ scene: UIScene) {}
 
 	private func showImage(_ image: UIImage) {
-		let imageView = ZStack(alignment: .bottom) {
-			Image(uiImage: image)
-				.resizable(resizingMode: .stretch)
-				.aspectRatio(contentMode: .fill)
-
-			Button(
-				action: {
-					self.navigationController.popViewController(animated: true)
-				},
-				label: {
-					Text("Done")
-				})
-		}
+		let imageView = Image(uiImage: image)
+			.resizable(resizingMode: .stretch)
+			   .aspectRatio(contentMode: .fill)
 
 		let vc = UIHostingController(rootView: imageView)
+		vc.view.clipsToBounds = true
 		vc.navigationItem.largeTitleDisplayMode = .never
 		navigationController.pushViewController(vc, animated: true)
 	}
@@ -83,8 +70,10 @@ extension SceneDelegate: ListViewController.Coordinator {
 extension SceneDelegate: ScannerViewModel.Delegate {
 	func scannerViewModel(_ scannerViewModel: ScannerViewModel, didNotFindCodeMatch code: UUID) {
 		let picker = UIImagePickerController()
-		picker.delegate = self
 		picker.sourceType = .camera
+		picker.cameraCaptureMode = .photo
+		picker.cameraDevice = .rear
+		picker.delegate = self
 		picker.isModalInPresentation = true
 		picker.modalPresentationStyle = .fullScreen
 		navigationController.present(picker, animated: true)
