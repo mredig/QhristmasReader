@@ -31,11 +31,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	func sceneWillEnterForeground(_ scene: UIScene) {}
 
 	func sceneDidEnterBackground(_ scene: UIScene) {}
+
+	private func showImage(_ image: UIImage) {
+		let imageView = ZStack(alignment: .bottom) {
+			Image(uiImage: image)
+				.resizable(resizingMode: .stretch)
+				.aspectRatio(contentMode: .fill)
+
+			Button(
+				action: {
+					self.navigationController.popViewController(animated: true)
+				},
+				label: {
+					Text("Done")
+				})
+		}
+
+		let vc = UIHostingController(rootView: imageView)
+		vc.navigationItem.largeTitleDisplayMode = .never
+		navigationController.pushViewController(vc, animated: true)
+	}
 }
 
 extension SceneDelegate: ListViewController.Coordinator {
 	func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL) {
-		print(item)
+		do {
+			let data = try Data(contentsOf: item)
+			guard let image = UIImage(data: data) else { return }
+			showImage(image)
+		} catch {
+			print("Error loading image: \(error)")
+		}
 	}
 
 	func listViewControllerDidTapScannerButton(_ listViewController: ListViewController) {
@@ -69,23 +95,7 @@ extension SceneDelegate: ScannerViewModel.Delegate {
 		didFindCodeMatch code: UUID,
 		withImage image: UIImage
 	) {
-		let imageView = ZStack(alignment: .bottom) {
-			Image(uiImage: image)
-				.resizable(resizingMode: .stretch)
-				.aspectRatio(contentMode: .fill)
-
-			Button(
-				action: {
-					self.navigationController.popViewController(animated: true)
-				},
-				label: {
-					Text("Done")
-				})
-		}
-
-		let vc = UIHostingController(rootView: imageView)
-		vc.navigationItem.largeTitleDisplayMode = .never
-		navigationController.pushViewController(vc, animated: true)
+		showImage(image)
 	}
 }
 
