@@ -7,13 +7,7 @@ class ScannerViewModel {
 		func scannerViewModel(_ scannerViewModel: ScannerViewModel, didNotFindCodeMatch code: UUID)
 	}
 
-	enum State {
-		case capturingImage(UUID)
-		case scanningCodes
-		case displayingImage(UIImage)
-	}
-
-	var state: State = .scanningCodes
+	private(set) var capturingImageID: UUID?
 
 	var storedItems: [URL]
 
@@ -52,33 +46,17 @@ class ScannerViewModel {
 			guard
 				let image = UIImage(data: imageData)
 			else { throw Error.notImage }
-			showImage(image)
 			delegate?.scannerViewModel(self, didFindCodeMatch: code, withImage: image)
 		} catch {
-			askToCaptureImage(for: code)
+			capturingImageID = code
 			delegate?.scannerViewModel(self, didNotFindCodeMatch: code)
 		}
 	}
 
-	func showImage(_ image: UIImage) {
-		state = .displayingImage(image)
-	}
-
-	func askToCaptureImage(for id: UUID) {
-		state = .capturingImage(id)
-	}
-
 	func storeImage(_ image: UIImage?, for id: UUID?) {
-		defer { state = .scanningCodes }
+		defer { capturingImageID = nil }
 		guard let image else { return }
-		let id: UUID? = {
-			if let id { return id }
-			guard case .capturingImage(let id) = state else {
-				return nil
-			}
-			return id
-		}()
-		guard let id else { return }
+		guard let id = id ?? capturingImageID else { return }
 
 		guard
 			let imageData = image.jpegData(compressionQuality: 0.85)
