@@ -14,8 +14,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		let window = UIWindow(windowScene: windowScene)
 		self.window = window
 
-		let cameraVC = UIHostingController(rootView: StoredItemList(viewModel: viewModel, coordinator: self))
-		navigationController.setViewControllers([cameraVC], animated: false)
+		let listVC = ListViewController(viewModel: viewModel, coordinator: self)
+		navigationController.setViewControllers([listVC], animated: false)
 		window.rootViewController = navigationController
 
 		window.makeKeyAndVisible()
@@ -50,8 +50,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	}
 }
 
-extension SceneDelegate: StoredItemList.Coordinator {
+extension SceneDelegate: ListViewController.Coordinator {
 	func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL) {
 		print(item)
+	}
+
+	func listViewControllerDidTapScannerButton(_ listViewController: ListViewController) {
+		print("Show cam")
+	}
+
+	func listViewControllerDidTapSyncButton(_ listViewController: ListViewController) {
+		print("Show sync")
 	}
 }

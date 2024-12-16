@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct StoredItemList: View {
-
 	protocol Coordinator: AnyObject {
 		func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL)
 	}
