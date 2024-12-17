@@ -26,5 +26,12 @@
 		<key>UIImageRespectsSafeAreaInsets</key>
 		<false/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Syncing with peers</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_qhristmasreader._tcp</string>
+		<string>_qhristmasreader._udp</string>
+	</array>
 </dict>
 </plist>

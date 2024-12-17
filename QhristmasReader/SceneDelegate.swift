@@ -70,7 +70,35 @@ extension SceneDelegate: ListViewController.Coordinator {
 	}
 
 	func listViewControllerDidTapSyncButton(_ listViewController: ListViewController) {
-		print("Show sync")
+
+		let alert = UIAlertController(title: "Sync Mode", message: "Are you hosting or joining a session?", preferredStyle: .actionSheet)
+		let hosting = UIAlertAction(
+			title: "Hosting",
+			style: .default) { [weak self] _ in
+				self?.showSyncScreen(asHost: true)
+			}
+		let joining = UIAlertAction(
+			title: "Joining",
+			style: .default) { [weak self] _ in
+				self?.showSyncScreen(asHost: false)
+			}
+
+		let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+
+		[
+			hosting,
+			joining,
+			cancel
+		]
+			.forEach(alert.addAction)
+
+		navigationController.present(alert, animated: true)
+	}
+
+	private func showSyncScreen(asHost: Bool) {
+		let syncVC = SyncController(asHost: asHost)
+
+		navigationController.pushViewController(syncVC, animated: true)
 	}
 }
 
