@@ -2,7 +2,9 @@ import AVFoundation
 import UIKit
 import VectorExtor
 
+@MainActor
 class QaptureController: UIViewController {
+	@MainActor
 	protocol Delegate: AnyObject {
 		func qaptureController(_ qaptureController: QaptureController, didCaptureID uuid: UUID)
 	}
@@ -66,36 +68,40 @@ class QaptureController: UIViewController {
 }
 
 extension QaptureController: AVCaptureMetadataOutputObjectsDelegate {
-	func metadataOutput(
+	nonisolated func metadataOutput(
 		_ output: AVCaptureMetadataOutput,
 		didOutput metadataObjects: [AVMetadataObject],
 		from connection: AVCaptureConnection
 	) {
 		guard
-			lastCapture.addingTimeInterval(2) < .now,
 			let metadataObject = metadataObjects.first,
 			let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
 			let code = readableObject.stringValue,
 			let id = UUID(uuidString: code)
 		else { return }
-		lastCapture = .now
+		Task { @MainActor in
+			guard
+				lastCapture.addingTimeInterval(2) < .now
+			else { return }
+			lastCapture = .now
 
-//		if case let points = readableObject.corners, points.isEmpty == false, let first = points.first {
-//			let size = view.layer.bounds.size
-//			let path = CGMutablePath()
-//			path.move(to: first.swapXAndY() * size)
-//
-//			for point in points.dropFirst() {
-//				path.addLine(to: point.swapXAndY() * size)
-//			}
-//			path.closeSubpath()
-//
-//			outlineLayer?.path = path
-//		} else {
-//			outlineLayer?.path = nil
-//		}
+	//		if case let points = readableObject.corners, points.isEmpty == false, let first = points.first {
+	//			let size = view.layer.bounds.size
+	//			let path = CGMutablePath()
+	//			path.move(to: first.swapXAndY() * size)
+	//
+	//			for point in points.dropFirst() {
+	//				path.addLine(to: point.swapXAndY() * size)
+	//			}
+	//			path.closeSubpath()
+	//
+	//			outlineLayer?.path = path
+	//		} else {
+	//			outlineLayer?.path = nil
+	//		}
 
-		delegate?.qaptureController(self, didCaptureID: id)
+			delegate?.qaptureController(self, didCaptureID: id)
+		}
 	}
 }
 

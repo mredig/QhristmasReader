@@ -112,7 +112,7 @@ extension SceneDelegate: ListViewController.Coordinator {
 			joining,
 			cancel
 		]
-			.forEach(alert.addAction)
+			.forEach { alert.addAction($0) }
 
 		navigationController.present(alert, animated: true)
 	}

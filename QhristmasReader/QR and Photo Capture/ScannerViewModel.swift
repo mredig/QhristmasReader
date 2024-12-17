@@ -1,7 +1,9 @@
 import SwiftUI
 
 @Observable
+@MainActor
 class ScannerViewModel {
+	@MainActor
 	protocol Delegate: AnyObject {
 		func scannerViewModel(_ scannerViewModel: ScannerViewModel, didFindCodeMatch code: UUID, withImage image: UIImage)
 		func scannerViewModel(_ scannerViewModel: ScannerViewModel, didNotFindCodeMatch code: UUID)

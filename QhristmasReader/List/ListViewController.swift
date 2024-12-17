@@ -1,7 +1,9 @@
 import SwiftUI
 import SwiftPizzaSnips
 
+@MainActor
 class ListViewController: UIHostingController<StoredItemList> {
+	@MainActor
 	protocol Coordinator: StoredItemList.Coordinator {
 		func listViewControllerDidTapScannerButton(_ listViewController: ListViewController)
 		func listViewControllerDidTapSyncButton(_ listViewController: ListViewController)

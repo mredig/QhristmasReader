@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftPizzaSnips
 
 @Observable
+@MainActor
 class GiftDetailViewModel {
 	let image: UIImage
 

@@ -1,7 +1,9 @@
 import SwiftUI
 import SwiftPizzaSnips
 
+@MainActor
 struct StoredItemList: View {
+	@MainActor
 	protocol Coordinator: AnyObject {
 		func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL)
 	}
