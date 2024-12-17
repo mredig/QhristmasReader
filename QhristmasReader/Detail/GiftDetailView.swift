@@ -7,34 +7,37 @@ struct GiftDetailView: View {
 
 	var body: some View {
 		Form {
-			if viewModel.isEditing {
-				TextField("Label", text: $viewModel.editingLabel)
+			Section("Metadata") {
+				if viewModel.isEditing {
+					TextField("Label", text: $viewModel.editingLabel)
 
-				LazyVStack {
-					ForEach(viewModel.allRecipients()) { potentialRecipient in
-						Button(
-							action: {
-								if viewModel.editingRecipients.contains(potentialRecipient) {
-									viewModel.editingRecipients.insert(potentialRecipient)
-								} else {
-									viewModel.editingRecipients.remove(potentialRecipient)
-								}
-							},
-							label: {
-								HStack {
-									let name = viewModel.editingRecipients.contains(potentialRecipient) ? "checkmark.circle" : "circle"
-									Image(systemName: name)
+					Section("Recipients") {
+						ForEach(viewModel.allRecipients()) { potentialRecipient in
+							Button(
+								action: {
+									if viewModel.editingRecipients.contains(potentialRecipient) {
+										viewModel.editingRecipients.remove(potentialRecipient)
+									} else {
+										viewModel.editingRecipients.insert(potentialRecipient)
+									}
+								},
+								label: {
+									HStack {
+										let name = viewModel.editingRecipients.contains(potentialRecipient) ? "checkmark.circle" : "circle"
+										Image(systemName: name)
 
-									Text(potentialRecipient.name ?? "Some Person")
-								}
-							})
+										Text(potentialRecipient.name ?? "Some Person")
+									}
+								})
+						}
+
+						TextField("New Recipient", text: $viewModel.newRecipient)
 					}
-				}
-
-			} else {
-				Text(viewModel.gift.label ?? "unlabeled")
-				if viewModel.gift.recipients.isOccupied {
-					Text(viewModel.gift.recipients.compactMap(\.name).sorted().joined(separator: ", "))
+				} else {
+					Text(viewModel.gift.label ?? "unlabeled")
+					if viewModel.gift.recipients.isOccupied {
+						Text(viewModel.gift.recipients.compactMap(\.name).sorted().joined(separator: ", "))
+					}
 				}
 			}
 

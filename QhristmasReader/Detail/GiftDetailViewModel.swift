@@ -11,6 +11,7 @@ class GiftDetailViewModel {
 
 	var editingLabel: String = ""
 	var editingRecipients: Set<Recipient> = []
+	var newRecipient: String = ""
 
 	private(set) var isEditing = false
 	let canEdit: Bool
@@ -41,9 +42,15 @@ class GiftDetailViewModel {
 		if isEditing {
 			editingLabel = gift.label.nilIsEmpty
 			editingRecipients = gift.recipients
+			newRecipient = ""
 		} else {
 			gift.label = editingLabel.emptyIsNil
 			gift.recipients = editingRecipients
+
+			if let newRecipientName = newRecipient.emptyIsNil {
+				let newRecipient = Recipient(name: newRecipientName, context: coreDataStack.mainContext)
+				gift.addRecipient(newRecipient)
+			}
 		}
 	}
 
