@@ -40,6 +40,24 @@ extension Gift {
 			return Set(results)
 		}
 		setRecipients(recipients)
+		lastUpdated = dto.lastUpdated
+	}
+
+	func update(from dto: DTO, context: NSManagedObjectContext) throws {
+		update(imageID: .newValue(dto.imageID), label: .newValue(dto.label))
+
+		let recipientIDs = dto.recipients
+		let recipients = try context.performAndWait {
+			let fr = Recipient.fetchRequest()
+			fr.predicate = NSPredicate(format: "id IN %@", recipientIDs as NSSet)
+
+			return try context.fetch(fr)
+		}
+
+		for recipient in recipients {
+			addRecipient(recipient)
+		}
+		lastUpdated = dto.lastUpdated
 	}
 
 	func update(imageID: Update<UUID> = .unchanged, label: Update<String?> = .unchanged) {

@@ -15,7 +15,7 @@ class ScannerViewModel {
 
 	weak var delegate: Delegate?
 
-	static private let storageDirectory: URL = .applicationSupportDirectory.appending(component: "Images")
+	static let storageDirectory: URL = .applicationSupportDirectory.appending(component: "Images")
 
 	init() {
 		self.storedItems = Self.storedItems()

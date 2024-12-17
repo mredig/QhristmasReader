@@ -1,5 +1,5 @@
 import UIKit
-import SwiftPizzaSnips
+@preconcurrency import SwiftPizzaSnips
 @preconcurrency import MultipeerConnectivity
 
 class SyncController: UIViewController {
@@ -23,7 +23,7 @@ class SyncController: UIViewController {
 
 	let router: Router
 
-	init(asHost: Bool, username: String, coreDataStack: CoreDataStack) {
+	init(asHost: Bool, username: String, coreDataStack: CoreDataStack) async {
 		let peerID = MCPeerID(displayName: username)
 		let session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 
@@ -37,11 +37,12 @@ class SyncController: UIViewController {
 		self.peerID = peerID
 		self.session = session
 		self.advertiser = advertiser
-		self.router = Router(coreDataStack: coreDataStack, session: session)
+		self.router = await Router(coreDataStack: coreDataStack, session: session)
 
 		super.init(nibName: nil, bundle: nil)
 		advertiser?.delegate = self
 		session.delegate = self
+		router.delegate = self
 	}
 
 	required init?(coder: NSCoder) {
@@ -71,7 +72,7 @@ class SyncController: UIViewController {
 	private func startHosting() {
 		guard let advertiser else { return }
 		advertiser.startAdvertisingPeer()
-		startPing()
+//		startPing()
 	}
 
 	private func showBrowser() {
@@ -97,16 +98,16 @@ class SyncController: UIViewController {
 		]
 	}
 
-	func startPing() {
-		Task {
-			while true {
-				try await Task.sleep(for: .seconds(2))
-				guard session.connectedPeers.isOccupied else { continue }
-				let peers = try session.connectedPeers.map { try $0.getSendableData() }
-				try await router.send(to: peers, request: .ping)
-			}
-		}
-	}
+//	func startPing() {
+//		Task {
+//			while true {
+//				try await Task.sleep(for: .seconds(2))
+//				guard session.connectedPeers.isOccupied else { continue }
+//				let peers = try session.connectedPeers.map { try $0.getSendableData() }
+//				try await router.send(to: peers, request: .ping)
+//			}
+//		}
+//	}
 
 	private func getSyncView(for peerID: MCPeerID) -> PeerSyncStateView {
 		if let existing = syncStateViews[peerID] {
@@ -221,5 +222,31 @@ extension SyncController: MCNearbyServiceAdvertiserDelegate {
 		print("\(#function): \(peerID) - \(context as Any)")
 
 		invitationHandler(true, session)
+	}
+}
+
+extension SyncController: Router.Delegate {
+	nonisolated
+	func router(_ router: Router, didUpdatePendingGiftCount count: Int, for peer: MCPeerID.SendableDTO) {
+		do {
+			let peerID = try MCPeerID.fromSendableData(peer)
+			updateSyncView(for: peerID) {
+				$0.itemsToSyncCount = count
+			}
+		} catch {
+			print("Error updating peer: \(error)")
+		}
+	}
+
+	nonisolated
+	func router(_ router: Router, didUpdateRecipientPendingCount count: Int, for peer: MCPeerID.SendableDTO) {
+		do {
+			let peerID = try MCPeerID.fromSendableData(peer)
+			updateSyncView(for: peerID) {
+				$0.itemsToSyncCount = count
+			}
+		} catch {
+			print("Error updating peer: \(error)")
+		}
 	}
 }

@@ -127,9 +127,11 @@ extension SceneDelegate: ListViewController.Coordinator {
 	}
 
 	private func showSyncScreen(asHost: Bool, username: String) {
-		let syncVC = SyncController(asHost: asHost, username: username, coreDataStack: coreDataStack)
+		Task {
+			let syncVC = await SyncController(asHost: asHost, username: username, coreDataStack: coreDataStack)
 
-		navigationController.pushViewController(syncVC, animated: true)
+			navigationController.pushViewController(syncVC, animated: true)
+		}
 	}
 }
 

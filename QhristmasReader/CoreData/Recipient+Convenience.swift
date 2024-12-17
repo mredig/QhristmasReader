@@ -29,6 +29,17 @@ extension Recipient {
 		update(name: .newValue(name))
 	}
 
+	convenience init(from dto: DTO, context: NSManagedObjectContext) throws {
+		self.init(name: dto.name, context: context)
+
+		lastUpdated = dto.lastUpdated
+	}
+
+	func update(from dto: DTO) {
+		self.name = dto.name
+		self.lastUpdated = dto.lastUpdated
+	}
+
 	func update(name: Update<String>) {
 		if case .newValue(let t) = name {
 			self.name = t

@@ -11,7 +11,7 @@ extension MCPeerID {
 		return try NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data).unwrap()
 	}
 
-	struct SendableDTO: Sendable {
+	struct SendableDTO: Sendable, Hashable {
 		let data: Data
 
 		fileprivate init(data: Data) {
