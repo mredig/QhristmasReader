@@ -1,8 +1,22 @@
 import UIKit
 import SwiftUI
+import SwiftPizzaSnips
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+	let coreDataStack: CoreDataStack
+
+	override init() {
+		do {
+			let cd = try CoreDataStack(configuration: .init(modelFileName: "ItemInfo"))
+			self.coreDataStack = cd
+		} catch {
+			fatalError("Error initializing coredata stack")
+		}
+
+		super.init()
+	}
+
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		// Override point for customization after application launch.
 		return true

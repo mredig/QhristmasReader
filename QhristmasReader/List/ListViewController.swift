@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftPizzaSnips
 
 class ListViewController: UIHostingController<StoredItemList> {
 	protocol Coordinator: StoredItemList.Coordinator {
@@ -7,10 +8,12 @@ class ListViewController: UIHostingController<StoredItemList> {
 	}
 
 	unowned let coordinator: Coordinator
+	let coreDataStack: CoreDataStack
 
-	init(viewModel: ScannerViewModel, coordinator: Coordinator) {
+	init(viewModel: ScannerViewModel, coordinator: Coordinator, coreDataStack: CoreDataStack) {
 		self.coordinator = coordinator
-		super.init(rootView: StoredItemList(viewModel: viewModel, coordinator: coordinator))
+		self.coreDataStack = coreDataStack
+		super.init(rootView: StoredItemList(viewModel: viewModel, coordinator: coordinator, coreDataStack: coreDataStack))
 	}
 	
 	@MainActor @preconcurrency required dynamic init?(coder aDecoder: NSCoder) {

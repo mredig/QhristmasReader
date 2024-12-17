@@ -19,7 +19,7 @@ class ScannerViewModel {
 		self.storedItems = Self.storedItems()
 	}
 
-	static private func url(for id: UUID) -> URL {
+	static func url(for id: UUID) -> URL {
 		storageDirectory.appending(component: id.uuidString.lowercased()).appendingPathExtension("jpg")
 	}
 

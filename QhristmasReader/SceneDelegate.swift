@@ -1,4 +1,5 @@
 import UIKit
+import SwiftPizzaSnips
 import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -9,13 +10,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	let viewModel = ScannerViewModel()
 
+	var coreDataStack: CoreDataStack {
+		(UIApplication.shared.delegate as! AppDelegate).coreDataStack
+	}
+
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 		guard let windowScene = scene as? UIWindowScene else { return }
 		let window = UIWindow(windowScene: windowScene)
 		self.window = window
 
 		viewModel.delegate = self
-		let listVC = ListViewController(viewModel: viewModel, coordinator: self)
+		let listVC = ListViewController(viewModel: viewModel, coordinator: self, coreDataStack: coreDataStack)
 		navigationController.setViewControllers([listVC], animated: false)
 		window.rootViewController = navigationController
 
@@ -28,27 +33,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	func sceneWillEnterForeground(_ scene: UIScene) {}
 	func sceneDidEnterBackground(_ scene: UIScene) {}
 
-	private func showImage(_ image: UIImage) {
-		let imageView = Image(uiImage: image)
-			.resizable(resizingMode: .stretch)
-			   .aspectRatio(contentMode: .fill)
+	private func showGift(_ id: UUID) {
+		do {
+			let viewModel = try GiftDetailViewModel(canEdit: true, imageID: id, coreDataStack: coreDataStack)
 
-		let vc = UIHostingController(rootView: imageView)
-		vc.view.clipsToBounds = true
-		vc.navigationItem.largeTitleDisplayMode = .never
-		navigationController.pushViewController(vc, animated: true)
+			let vc = GiftDetailController(viewModel: viewModel)
+			vc.view.clipsToBounds = true
+			vc.navigationItem.largeTitleDisplayMode = .never
+			navigationController.pushViewController(vc, animated: true)
+		} catch {
+			print("Error showing gift: \(error)")
+		}
 	}
 }
 
 extension SceneDelegate: ListViewController.Coordinator {
 	func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL) {
-		do {
-			let data = try Data(contentsOf: item)
-			guard let image = UIImage(data: data) else { return }
-			showImage(image)
-		} catch {
-			print("Error loading image: \(error)")
+		let uuidStr = item.deletingPathExtension().lastPathComponent
+		guard let uuid = UUID(uuidString: uuidStr) else {
+			print("Invalid uuid string: \(uuidStr)")
+			return
 		}
+
+		showGift(uuid)
 	}
 
 	func listViewControllerDidTapScannerButton(_ listViewController: ListViewController) {
@@ -84,7 +91,7 @@ extension SceneDelegate: ScannerViewModel.Delegate {
 		didFindCodeMatch code: UUID,
 		withImage image: UIImage
 	) {
-		showImage(image)
+		showGift(code)
 	}
 }
 

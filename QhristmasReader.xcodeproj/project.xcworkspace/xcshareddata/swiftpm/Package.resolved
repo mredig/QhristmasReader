@@ -1,6 +1,15 @@
 {
-  "originHash" : "f294daf835da999c881d2692fb581f618a12f22e3e28262eacaa511007b169a1",
+  "originHash" : "29f0c96429794e2c2915e13850a0f31f2421eb58cb857046a00c2a25a394db48",
   "pins" : [
+    {
+      "identity" : "swiftpizzasnips",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mredig/SwiftPizzaSnips",
+      "state" : {
+        "revision" : "4f3ac33dba8bfe432b617e76171d06acf110e005",
+        "version" : "0.4.29"
+      }
+    },
     {
       "identity" : "vectorextor",
       "kind" : "remoteSourceControl",
