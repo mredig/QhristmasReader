@@ -19,7 +19,7 @@
 		33E5E3F52CF832B6007155F7 /* Exceptions for "QhristmasReader" folder in "QhristmasReader" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Boilerplate/Info.plist,
 			);
 			target = 33E5E3DF2CF82F1A007155F7 /* QhristmasReader */;
 		};
@@ -275,14 +275,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = QhristmasReader/QhristmasReader.entitlements;
+				CODE_SIGN_ENTITLEMENTS = QhristmasReader/Boilerplate/QhristmasReader.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"QhristmasReader/Preview Content\"";
 				DEVELOPMENT_TEAM = L5UZAT7KA9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = QhristmasReader/Info.plist;
+				INFOPLIST_FILE = QhristmasReader/Boilerplate/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to scan QR codes";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -308,14 +308,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = QhristmasReader/QhristmasReader.entitlements;
+				CODE_SIGN_ENTITLEMENTS = QhristmasReader/Boilerplate/QhristmasReader.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"QhristmasReader/Preview Content\"";
 				DEVELOPMENT_TEAM = L5UZAT7KA9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = QhristmasReader/Info.plist;
+				INFOPLIST_FILE = QhristmasReader/Boilerplate/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to scan QR codes";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
