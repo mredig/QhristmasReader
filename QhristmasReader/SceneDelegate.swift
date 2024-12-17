@@ -90,6 +90,7 @@ extension SceneDelegate: ListViewController.Coordinator {
 				guard
 					let name = alert?.textFields?.first?.text?.emptyIsNil
 				else { return }
+				DefaultsManager.shared[.username] = name
 				self?.showSyncScreen(asHost: true, username: name)
 			}
 		let joining = UIAlertAction(
@@ -98,6 +99,7 @@ extension SceneDelegate: ListViewController.Coordinator {
 				guard
 					let name = alert?.textFields?.first?.text?.emptyIsNil
 				else { return }
+				DefaultsManager.shared[.username] = name
 				self?.showSyncScreen(asHost: false, username: name)
 			}
 		alertActions = [
@@ -125,7 +127,7 @@ extension SceneDelegate: ListViewController.Coordinator {
 	}
 
 	private func showSyncScreen(asHost: Bool, username: String) {
-		let syncVC = SyncController(asHost: asHost, username: username)
+		let syncVC = SyncController(asHost: asHost, username: username, coreDataStack: coreDataStack)
 
 		navigationController.pushViewController(syncVC, animated: true)
 	}

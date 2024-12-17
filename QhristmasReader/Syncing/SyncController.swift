@@ -1,4 +1,5 @@
 import UIKit
+import SwiftPizzaSnips
 @preconcurrency import MultipeerConnectivity
 
 class SyncController: UIViewController {
@@ -20,7 +21,9 @@ class SyncController: UIViewController {
 		$0.distribution = .fill
 	}
 
-	init(asHost: Bool, username: String) {
+	let router: Router
+
+	init(asHost: Bool, username: String, coreDataStack: CoreDataStack) {
 		let peerID = MCPeerID(displayName: username)
 		let session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 
@@ -34,6 +37,7 @@ class SyncController: UIViewController {
 		self.peerID = peerID
 		self.session = session
 		self.advertiser = advertiser
+		self.router = Router(coreDataStack: coreDataStack, session: session)
 
 		super.init(nibName: nil, bundle: nil)
 		advertiser?.delegate = self
@@ -86,18 +90,20 @@ class SyncController: UIViewController {
 		defer { NSLayoutConstraint.activate(constraints) }
 
 		view.addSubview(stackView)
-		constraints += view.constrain(stackView, inset: NSDirectionalEdgeInsets(scalar: 24))
-	}
+		constraints += view.constrain(stackView, inset: NSDirectionalEdgeInsets(scalar: 24), safeAreaDirections: .all, directions: .init(top: .create, leading: .create, bottom: .skip, trailing: .create))
 
-	private let encoder = JSONEncoder()
-	private let decoder = JSONDecoder()
+		constraints += [
+			stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 24)
+		]
+	}
 
 	func startPing() {
 		Task {
 			while true {
 				try await Task.sleep(for: .seconds(2))
 				guard session.connectedPeers.isOccupied else { continue }
-				try session.send(encoder.encode(CommProtocol.Request.ping), toPeers: session.connectedPeers, with: .reliable)
+				let peers = try session.connectedPeers.map { try $0.getSendableData() }
+				try await router.send(to: peers, request: .ping)
 			}
 		}
 	}
@@ -112,24 +118,6 @@ class SyncController: UIViewController {
 			stackView.addArrangedSubview(new)
 
 			return new
-		}
-	}
-
-	enum CommProtocol {
-		enum Request: Codable {
-			case listRecipientIDs
-			case listGiftIDs
-			case getRecipient(id: UUID)
-			case getGift(id: UUID)
-			case ping
-		}
-
-		enum Response {
-			case recipientIDList(ids: [UUID: Date])
-			case giftIDList(ids: [UUID: Date])
-			case recipient(Recipient.DTO)
-			case gift(Gift.DTO, Data)
-			case pong
 		}
 	}
 
@@ -167,6 +155,10 @@ extension SyncController: MCSessionDelegate {
 					$0.state = .connected
 					self?.browser?.dismiss(animated: true)
 				}
+
+				Task {
+					try await router.send(to: peerID.getSendableData(), request: .listRecipientIDs)
+				}
 			@unknown default:
 				fatalError("Unknown state: \(state)")
 			}
@@ -175,7 +167,9 @@ extension SyncController: MCSessionDelegate {
 	
 	nonisolated
 	func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-		print("\(#function): \(peerID) - \(data)")
+		Task {
+			try await router.route(data: data, from: peerID.getSendableData())
+		}
 	}
 	
 	nonisolated
