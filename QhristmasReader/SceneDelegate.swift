@@ -9,6 +9,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	let navigationController = UINavigationController(rootViewController: UIViewController())
 
 	let viewModel = ScannerViewModel()
+	private var alertActions: Set<WeakBox<UIAlertAction>> = []
 
 	var coreDataStack: CoreDataStack {
 		(UIApplication.shared.delegate as! AppDelegate).coreDataStack
@@ -71,17 +72,38 @@ extension SceneDelegate: ListViewController.Coordinator {
 
 	func listViewControllerDidTapSyncButton(_ listViewController: ListViewController) {
 
-		let alert = UIAlertController(title: "Sync Mode", message: "Are you hosting or joining a session?", preferredStyle: .actionSheet)
+		let alert = UIAlertController(title: "Sync Mode", message: "Are you hosting or joining a session?", preferredStyle: .alert)
+		let textFieldUpdate = UIAction() { [weak self] action in
+			guard let textField = action.sender as? UITextField else { return }
+			self?.updateAlertActions(textField: textField)
+		}
+		alert.addTextField {
+			$0.placeholder = "Your Name"
+			if let username = DefaultsManager.shared[.username] {
+				$0.text = username
+			}
+			$0.addAction(textFieldUpdate, for: .allEditingEvents)
+		}
 		let hosting = UIAlertAction(
 			title: "Hosting",
-			style: .default) { [weak self] _ in
-				self?.showSyncScreen(asHost: true)
+			style: .default) { [weak self, weak alert] action in
+				guard
+					let name = alert?.textFields?.first?.text?.emptyIsNil
+				else { return }
+				self?.showSyncScreen(asHost: true, username: name)
 			}
 		let joining = UIAlertAction(
 			title: "Joining",
-			style: .default) { [weak self] _ in
-				self?.showSyncScreen(asHost: false)
+			style: .default) { [weak self, weak alert] action in
+				guard
+					let name = alert?.textFields?.first?.text?.emptyIsNil
+				else { return }
+				self?.showSyncScreen(asHost: false, username: name)
 			}
+		alertActions = [
+			.init(content: hosting),
+			.init(content: joining)
+		]
 
 		let cancel = UIAlertAction(title: "Cancel", style: .cancel)
 
@@ -95,8 +117,15 @@ extension SceneDelegate: ListViewController.Coordinator {
 		navigationController.present(alert, animated: true)
 	}
 
-	private func showSyncScreen(asHost: Bool) {
-		let syncVC = SyncController(asHost: asHost)
+	private func updateAlertActions(textField: UITextField) {
+		let enable = textField.text?.isOccupied ?? false
+		for alertAction in self.alertActions {
+			alertAction.content?.isEnabled = enable
+		}
+	}
+
+	private func showSyncScreen(asHost: Bool, username: String) {
+		let syncVC = SyncController(asHost: asHost, username: username)
 
 		navigationController.pushViewController(syncVC, animated: true)
 	}

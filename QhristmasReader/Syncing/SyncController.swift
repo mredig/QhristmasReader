@@ -12,8 +12,8 @@ class SyncController: UIViewController {
 
 	private var browser: MCBrowserViewController?
 
-	init(asHost: Bool) {
-		let peerID = MCPeerID(displayName: UIDevice.current.name)
+	init(asHost: Bool, username: String) {
+		let peerID = MCPeerID(displayName: username)
 		let session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 
 		let advertiser: MCNearbyServiceAdvertiser?
