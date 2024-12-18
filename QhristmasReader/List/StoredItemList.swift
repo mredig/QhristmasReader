@@ -38,7 +38,7 @@ struct StoredItemList: View {
 	private func label(for gift: Gift) -> String {
 		let label = gift.label ?? gift.imageID?.uuidString ?? "Unknown label"
 
-		let recipients = gift.recipients.compactMap(\.name).joined(separator: ", ")
+		let recipients = gift.recipients.compactMap(\.name).sorted().joined(separator: ", ")
 
 		return "\(label) (\(recipients))"
 	}
