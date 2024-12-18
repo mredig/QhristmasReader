@@ -54,9 +54,7 @@ extension Gift {
 			return try context.fetch(fr)
 		}
 
-		for recipient in recipients {
-			addRecipient(recipient)
-		}
+		setRecipients(Set(recipients))
 		lastUpdated = dto.lastUpdated
 	}
 
