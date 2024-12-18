@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftPizzaSnips
 
 @Observable
 @MainActor
@@ -17,8 +18,26 @@ class ScannerViewModel {
 
 	static let storageDirectory: URL = .applicationSupportDirectory.appending(component: "Images")
 
-	init() {
+	let fro: FetchedResultObserver<Gift>
+	private(set) var latestSnapshot: FetchedResultObserver<Gift>.DiffableDataSourceType?
+
+	init(coreDataStack: CoreDataStack) throws {
+		let request = Gift.fetchRequest()
+		request.sortDescriptors = [
+			.init(keyPath: \Gift.label, ascending: true)
+		]
+
+		self.fro = try FetchedResultObserver(
+			fetchRequest: request,
+			managedObjectContext: coreDataStack.mainContext)
 		self.storedItems = Self.storedItems()
+
+		Task {
+			try fro.start()
+			for await snapshot in fro.resultStream {
+				self.latestSnapshot = snapshot
+			}
+		}
 	}
 
 	static func url(for id: UUID) -> URL {

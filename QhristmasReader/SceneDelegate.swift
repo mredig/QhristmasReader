@@ -8,11 +8,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	let navigationController = UINavigationController(rootViewController: UIViewController())
 
-	let viewModel = ScannerViewModel()
+	let viewModel: ScannerViewModel
 	private var alertActions: Set<WeakBox<UIAlertAction>> = []
 
-	var coreDataStack: CoreDataStack {
+	static var coreDataStack: CoreDataStack {
 		(UIApplication.shared.delegate as! AppDelegate).coreDataStack
+	}
+	var coreDataStack: CoreDataStack { Self.coreDataStack }
+
+	override init() {
+		let cds = Self.coreDataStack
+		do {
+			let vm = try ScannerViewModel(coreDataStack: cds)
+			self.viewModel = vm
+		} catch {
+			fatalError("Error loading scanner vm: \(error)")
+		}
+
+		super.init()
 	}
 
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -171,6 +184,20 @@ extension SceneDelegate: UIImagePickerControllerDelegate & UINavigationControlle
 		else {
 			return
 		}
-		viewModel.storeImage(image, for: nil)
+		Task {
+			let context = coreDataStack.newBackgroundContext()
+			guard let id = viewModel.capturingImageID else { return }
+			async let dbSave: Void = context.perform {
+				_ = Gift(imageID: id, context: context)
+
+				try context.save()
+			}
+
+			let scaledImage = await image.imageByScaling(toSize: CGSize(scalar: 640))
+			async let imageSave: Void = viewModel.storeImage(scaledImage, for: id)
+
+			try await dbSave
+			await imageSave
+		}
 	}
 }
