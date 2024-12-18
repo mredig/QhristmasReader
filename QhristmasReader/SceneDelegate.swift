@@ -1,4 +1,5 @@
 import UIKit
+import CoreData
 import SwiftPizzaSnips
 import SwiftUI
 
@@ -70,6 +71,28 @@ extension SceneDelegate: ListViewController.Coordinator {
 		}
 
 		showGift(uuid)
+	}
+
+	func storedItemList(_ storedItemList: StoredItemList, didAttemptDeletionOf objectID: NSManagedObjectID) {
+		do {
+			try deleteGift(objectWithID: objectID, scannerVM: storedItemList.viewModel)
+		} catch {
+			print("Error deleting gift: \(error)")
+		}
+	}
+
+	private func deleteGift(objectWithID objectID: NSManagedObjectID, scannerVM: ScannerViewModel) throws {
+		let context = coreDataStack.mainContext
+
+		try context.performAndWait {
+			let gift = try scannerVM.fro.object(for: objectID)
+			if let id = gift.imageID {
+				let url = ScannerViewModel.url(for: id)
+				try FileManager.default.removeItem(at: url)
+			}
+			context.delete(gift)
+			try context.save()
+		}
 	}
 
 	func listViewControllerDidTapScannerButton(_ listViewController: ListViewController) {
