@@ -31,6 +31,7 @@ extension Recipient {
 
 	convenience init(from dto: DTO, context: NSManagedObjectContext) throws {
 		self.init(name: dto.name, context: context)
+		self.id = dto.id
 
 		lastUpdated = dto.lastUpdated
 	}
