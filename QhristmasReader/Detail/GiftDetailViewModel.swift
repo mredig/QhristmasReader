@@ -45,8 +45,8 @@ class GiftDetailViewModel {
 			editingRecipients = gift.recipients
 			newRecipient = ""
 		} else {
-			gift.label = editingLabel.emptyIsNil
-			gift.recipients = editingRecipients
+			gift.update(label: .newValue(editingLabel.emptyIsNil))
+			gift.setRecipients(editingRecipients)
 
 			if let newRecipientName = newRecipient.emptyIsNil {
 				let newRecipient = Recipient(name: newRecipientName, context: coreDataStack.mainContext)
