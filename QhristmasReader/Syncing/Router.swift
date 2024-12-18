@@ -164,6 +164,10 @@ final class Router: Sendable {
 		delegate?.router(self, didUpdateRecipientPendingCount: needRecipientIDs.count, for: peer)
 		pendingRecipientCounts[peer] = needRecipientIDs.count
 
+		guard needRecipientIDs.isOccupied else {
+			try await send(to: peer, request: .listGiftIDs)
+			return
+		}
 		for id in needRecipientIDs {
 			try await send(to: peer, request: .getRecipient(id: id))
 		}
