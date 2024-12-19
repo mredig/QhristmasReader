@@ -60,6 +60,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 			print("Error showing gift: \(error)")
 		}
 	}
+
+	private func showGiverUI(animated: Bool) {
+		let listVC = ListViewController(viewModel: viewModel, coordinator: self, coreDataStack: coreDataStack)
+		navigationController.setViewControllers([listVC], animated: animated)
+	}
 }
 
 extension SceneDelegate: ListViewController.Coordinator {
