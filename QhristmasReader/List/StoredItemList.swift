@@ -17,7 +17,7 @@ struct StoredItemList: View {
 	let coreDataStack: CoreDataStack
 
 	var body: some View {
-		if let snapshot = viewModel.latestSnapshot {
+		if let snapshot = viewModel.latestSnapshot, snapshot.numberOfItems > 0 {
 			List {
 				ForEach(snapshot.itemIdentifiers, id: \.self) { objectID in
 					let object = viewModel.fro.maybeObject(for: objectID)
@@ -41,7 +41,10 @@ struct StoredItemList: View {
 				}
 			}
 		} else {
-			Text("Loading...")
+			Text("Sync or Scan!")
+				.font(.largeTitle)
+				.foregroundStyle(.secondary)
+				.bold()
 		}
 	}
 
