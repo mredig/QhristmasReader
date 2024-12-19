@@ -35,8 +35,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		self.window = window
 
 		viewModel.delegate = self
-		let listVC = ListViewController(viewModel: viewModel, coordinator: self, coreDataStack: coreDataStack)
-		navigationController.setViewControllers([listVC], animated: false)
+
+		switch DefaultsManager.shared[.userMode] {
+		case .give:
+			showGiverUI(animated: false)
+		case .get:
+//		showRecipientUI()
+			break
+		default:
+			// show onboard ui
+			let vc = UIHostingController(rootView: OnboardFirst(coordinator: self))
+			navigationController.setViewControllers([vc], animated: false)
+		}
 		window.rootViewController = navigationController
 
 		window.makeKeyAndVisible()
@@ -114,34 +124,15 @@ extension SceneDelegate: ListViewController.Coordinator {
 	func listViewControllerDidTapSyncButton(_ listViewController: ListViewController) {
 
 		let alert = UIAlertController(title: "Sync Mode", message: "Are you hosting or joining a session?", preferredStyle: .alert)
-		let textFieldUpdate = UIAction() { [weak self] action in
-			guard let textField = action.sender as? UITextField else { return }
-			self?.updateAlertActions(textField: textField)
-		}
-		alert.addTextField {
-			$0.placeholder = "Your Name"
-			if let username = DefaultsManager.shared[.username] {
-				$0.text = username
-			}
-			$0.addAction(textFieldUpdate, for: .allEditingEvents)
-		}
 		let hosting = UIAlertAction(
 			title: "Hosting",
-			style: .default) { [weak self, weak alert] action in
-				guard
-					let name = alert?.textFields?.first?.text?.emptyIsNil
-				else { return }
-				DefaultsManager.shared[.username] = name
-				self?.showSyncScreen(asHost: true, username: name)
+			style: .default) { [weak self] action in
+				self?.showSyncScreen(asHost: true, username: DefaultsManager.shared[.username])
 			}
 		let joining = UIAlertAction(
 			title: "Joining",
-			style: .default) { [weak self, weak alert] action in
-				guard
-					let name = alert?.textFields?.first?.text?.emptyIsNil
-				else { return }
-				DefaultsManager.shared[.username] = name
-				self?.showSyncScreen(asHost: false, username: name)
+			style: .default) { [weak self] action in
+				self?.showSyncScreen(asHost: false, username: DefaultsManager.shared[.username])
 			}
 		alertActions = [
 			.init(content: hosting),
@@ -158,13 +149,6 @@ extension SceneDelegate: ListViewController.Coordinator {
 			.forEach { alert.addAction($0) }
 
 		navigationController.present(alert, animated: true)
-	}
-
-	private func updateAlertActions(textField: UITextField) {
-		let enable = textField.text?.isOccupied ?? false
-		for alertAction in self.alertActions {
-			alertAction.content?.isEnabled = enable
-		}
 	}
 
 	private func showSyncScreen(asHost: Bool, username: String) {
@@ -227,5 +211,18 @@ extension SceneDelegate: UIImagePickerControllerDelegate & UINavigationControlle
 			try await dbSave
 			await imageSave
 		}
+	}
+}
+
+extension SceneDelegate: OnboardFirst.Coordinator, OnboardSecond.Coordinator {
+	func onboardViewDidTapNextButton(_ onboardView: OnboardFirst) {
+		let next = OnboardSecond(coordinator: self)
+		let vc = UIHostingController(rootView: next)
+
+		navigationController.pushViewController(vc, animated: true)
+	}
+
+	func onboardViewDidTapGivingButton(_ onboardView: OnboardSecond) {
+		showGiverUI(animated: true)
 	}
 }
