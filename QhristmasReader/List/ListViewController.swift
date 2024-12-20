@@ -25,6 +25,8 @@ class ListViewController: UIHostingController<StoredItemList> {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		title = "Gift List"
+
 		configureCameraButton()
 	}
 
