@@ -48,9 +48,10 @@ final class Router: Sendable {
 		struct ListItemInfo: Codable {
 			let lastUpdated: Date
 			let isDeleted: Bool
+			let originID: UUID
 		}
 
-		case recipientIDList(ids: [UUID: Date])
+		case recipientIDList(ids: [UUID: ListItemInfo])
 		case giftIDList(ids: [UUID: ListItemInfo])
 		case recipient(Recipient.DTO)
 		case gift(Gift.DTO, Data?)
@@ -138,9 +139,9 @@ final class Router: Sendable {
 	}
 
 	// MARK: - Response handlers
-	private func processRecipientIDs(_ ids: [UUID: Date], from peer: MCPeerID.SendableDTO) async throws {
+	private func processRecipientIDs(_ ids: [UUID: Response.ListItemInfo], from peer: MCPeerID.SendableDTO) async throws {
 		let needRecipientIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
-			for (id, date) in ids {
+			for (id, info) in ids {
 				group.addTask { [self] in
 					let context = coreDataStack.newBackgroundContext()
 					return try await context.perform {
@@ -149,7 +150,8 @@ final class Router: Sendable {
 						fr.predicate = NSPredicate(format: "id == %@", id as NSUUID)
 
 						if let recipient = try context.fetch(fr).first {
-							guard date > (recipient.lastUpdated ?? .distantPast) else { return nil }
+							guard info.originID == recipient.originID else { return nil }
+							guard info.lastUpdated > (recipient.lastUpdated ?? .distantPast) else { return nil }
 							return recipient.id
 						} else {
 							return id
@@ -215,6 +217,8 @@ final class Router: Sendable {
 						fr.predicate = NSPredicate(format: "imageID == %@", id as NSUUID)
 
 						if let gift = try context.fetch(fr).first {
+							guard gift.originID == info.originID else { return nil }
+
 							guard info.isDeleted == false else {
 								gift.isArchived = true
 								try context.save()
@@ -286,9 +290,12 @@ final class Router: Sendable {
 			let fr = Recipient.fetchRequest()
 
 			let rec = try context.fetch(fr)
-			return rec.reduce(into: [UUID: Date]()) {
+			return rec.reduce(into: [UUID: Response.ListItemInfo]()) {
 				guard let id = $1.id else { return }
-				$0[id] = $1.lastUpdated
+				$0[id] = Response.ListItemInfo(
+					lastUpdated: $1.dto.lastUpdated,
+					isDeleted: false,
+					originID: $1.dto.originID)
 			}
 		}
 
@@ -320,8 +327,8 @@ final class Router: Sendable {
 				guard let id = $1.imageID else { return }
 				$0[id] = Response.ListItemInfo(
 					lastUpdated: $1.dto.lastUpdated,
-					isDeleted: $1.isArchived
-				)
+					isDeleted: $1.isArchived,
+					originID: $1.dto.originID)
 			}
 		}
 
