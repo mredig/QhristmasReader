@@ -61,6 +61,8 @@ class SyncController: UIViewController {
 		} else {
 			startHosting()
 		}
+
+		view.backgroundColor = .systemBackground
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
@@ -72,7 +74,6 @@ class SyncController: UIViewController {
 	private func startHosting() {
 		guard let advertiser else { return }
 		advertiser.startAdvertisingPeer()
-//		startPing()
 	}
 
 	private func showBrowser() {
@@ -97,17 +98,6 @@ class SyncController: UIViewController {
 			stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 24)
 		]
 	}
-
-//	func startPing() {
-//		Task {
-//			while true {
-//				try await Task.sleep(for: .seconds(2))
-//				guard session.connectedPeers.isOccupied else { continue }
-//				let peers = try session.connectedPeers.map { try $0.getSendableData() }
-//				try await router.send(to: peers, request: .ping)
-//			}
-//		}
-//	}
 
 	private func getSyncView(for peerID: MCPeerID) -> PeerSyncStateView {
 		if let existing = syncStateViews[peerID] {
