@@ -16,9 +16,13 @@ extension Gift {
 	}
 
 	var dto: DTO {
-		guard let imageID else { fatalError("imageID missing") }
+		guard
+			let imageID,
+			let originID
+		else { fatalError("imageID or originID missing") }
 		return DTO(
 			imageID: imageID,
+			originID: originID,
 			label: label,
 			lastUpdated: lastUpdated ?? .distantPast,
 			recipients: Set(recipients.compactMap(\.id)))
@@ -26,12 +30,15 @@ extension Gift {
 
 	convenience init(imageID: UUID, label: String? = nil, context: NSManagedObjectContext) {
 		self.init(context: context)
+		self.originID = UUID()
 
 		update(imageID: .newValue(imageID), label: .newValue(label))
 	}
 
 	convenience init(from dto: DTO, context: NSManagedObjectContext) throws {
 		self.init(imageID: dto.imageID, label: dto.label, context: context)
+
+		self.originID = dto.originID
 
 		let recipients = try context.performAndWait {
 			let fr = Recipient.fetchRequest()
@@ -82,6 +89,7 @@ extension Gift {
 
 	struct DTO: Codable {
 		let imageID: UUID
+		let originID: UUID
 		let label: String?
 		let lastUpdated: Date
 		let recipients: Set<UUID>

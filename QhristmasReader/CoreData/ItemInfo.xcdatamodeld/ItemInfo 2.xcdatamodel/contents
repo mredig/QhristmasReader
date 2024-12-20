@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24B91" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Gift" representedClassName="Gift" syncable="YES" codeGenerationType="class">
+        <attribute name="imageID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isArchived" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="label" optional="YES" attributeType="String"/>
+        <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="originID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="recipientsStore" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipient" inverseName="giftsStore" inverseEntity="Recipient"/>
+    </entity>
+    <entity name="Recipient" representedClassName="Recipient" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="originID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="giftsStore" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Gift" inverseName="recipientsStore" inverseEntity="Gift"/>
+    </entity>
+</model>

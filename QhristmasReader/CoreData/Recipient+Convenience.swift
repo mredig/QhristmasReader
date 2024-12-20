@@ -14,9 +14,14 @@ extension Recipient {
 	}
 
 	var dto: DTO {
-		guard let id, let name else { fatalError("Missing name or id") }
+		guard
+			let id,
+			let name,
+			let originID
+		else { fatalError("Missing name, id, or originID") }
 		return DTO(
 			id: id,
+			originID: originID,
 			lastUpdated: lastUpdated ?? .distantPast,
 			name: name,
 			gifts: Set(gifts.compactMap(\.imageID)))
@@ -26,12 +31,14 @@ extension Recipient {
 		self.init(context: context)
 
 		self.id = UUID()
+		self.originID = UUID()
 		update(name: .newValue(name))
 	}
 
 	convenience init(from dto: DTO, context: NSManagedObjectContext) throws {
 		self.init(name: dto.name, context: context)
 		self.id = dto.id
+		self.originID = dto.originID
 
 		lastUpdated = dto.lastUpdated
 	}
@@ -54,6 +61,7 @@ extension Recipient {
 
 	struct DTO: Codable {
 		let id: UUID
+		let originID: UUID
 		let lastUpdated: Date
 		let name: String
 		let gifts: Set<UUID>
