@@ -217,6 +217,7 @@ final class Router: Sendable {
 						if let gift = try context.fetch(fr).first {
 							guard info.isDeleted == false else {
 								gift.isArchived = true
+								try context.save()
 								return nil
 							}
 
