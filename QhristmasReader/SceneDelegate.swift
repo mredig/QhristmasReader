@@ -205,7 +205,7 @@ extension SceneDelegate: UIImagePickerControllerDelegate & UINavigationControlle
 				try context.save()
 			}
 
-			let scaledImage = await image.imageByScaling(toSize: CGSize(scalar: 640))
+			let scaledImage = await image.imageByScaling(toSize: CGSize(scalar: 640), mode: .pixels)
 			async let imageSave: Void = viewModel.storeImage(scaledImage, for: id)
 
 			try await dbSave
