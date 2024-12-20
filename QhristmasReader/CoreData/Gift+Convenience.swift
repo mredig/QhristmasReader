@@ -1,4 +1,5 @@
 import CoreData
+import UIKit
 
 extension Gift {
 	var recipients: Set<Recipient> {
@@ -84,5 +85,48 @@ extension Gift {
 		let label: String?
 		let lastUpdated: Date
 		let recipients: Set<UUID>
+	}
+
+	public override func prepareForDeletion() {
+		super.prepareForDeletion()
+
+		if let imageID {
+			Task { @MainActor in
+				do {
+					try Self.deleteImage(for: imageID)
+				} catch {
+					print("Error deleting image: \(error)")
+				}
+			}
+		}
+	}
+
+	@MainActor
+	static func url(for imageID: UUID) -> URL {
+		ScannerViewModel
+			.storageDirectory
+			.appending(component: imageID.uuidString.lowercased())
+			.appendingPathExtension("jpg")
+	}
+
+	@MainActor
+	static func storeImage(_ image: UIImage, for id: UUID) {
+		guard
+			let imageData = image.jpegData(compressionQuality: 0.85)
+		else { return }
+
+		let url = Self.url(for: id)
+		do {
+			try FileManager.default.createDirectory(at: ScannerViewModel.storageDirectory, withIntermediateDirectories: true)
+			try imageData.write(to: url)
+		} catch {
+			print("Cant save cuz \(error.localizedDescription)")
+		}
+	}
+
+	@MainActor
+	static func deleteImage(for id: UUID) throws {
+		let url = Self.url(for: id)
+		try FileManager.default.removeItem(at: url)
 	}
 }

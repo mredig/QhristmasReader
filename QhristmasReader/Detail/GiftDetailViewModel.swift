@@ -18,7 +18,7 @@ class GiftDetailViewModel {
 	let canEdit: Bool
 
 	init(canEdit: Bool, imageID: UUID, coreDataStack: CoreDataStack) throws {
-		let imageURL = ScannerViewModel.url(for: imageID)
+		let imageURL = Gift.url(for: imageID)
 		let imageData = try Data(contentsOf: imageURL)
 		guard
 			let image = UIImage(data: imageData)

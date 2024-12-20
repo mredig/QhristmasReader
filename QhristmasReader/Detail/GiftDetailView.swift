@@ -6,6 +6,18 @@ struct GiftDetailView: View {
 	var viewModel: GiftDetailViewModel
 
 	var body: some View {
+		if viewModel.gift.isArchived {
+			Text("Gift deleted from database")
+				.padding()
+				.background(Color.red)
+				.clipShape(RoundedRectangle(cornerRadius: 8, style: .circular))
+		} else {
+			detail
+		}
+	}
+
+	@ViewBuilder
+	private var detail: some View {
 		Form {
 			Section("Metadata") {
 				if viewModel.isEditing {

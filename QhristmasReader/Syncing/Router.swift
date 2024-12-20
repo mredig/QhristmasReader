@@ -45,10 +45,15 @@ final class Router: Sendable {
 	}
 
 	enum Response: Codable {
+		struct ListItemInfo: Codable {
+			let lastUpdated: Date
+			let isDeleted: Bool
+		}
+
 		case recipientIDList(ids: [UUID: Date])
-		case giftIDList(ids: [UUID: Date])
+		case giftIDList(ids: [UUID: ListItemInfo])
 		case recipient(Recipient.DTO)
-		case gift(Gift.DTO, Data)
+		case gift(Gift.DTO, Data?)
 		case pong
 	}
 
@@ -199,9 +204,9 @@ final class Router: Sendable {
 		try await send(to: peer, request: .listGiftIDs)
 	}
 
-	private func processGiftIDs(_ ids: [UUID: Date], from peer: MCPeerID.SendableDTO) async throws {
+	private func processGiftIDs(_ ids: [UUID: Response.ListItemInfo], from peer: MCPeerID.SendableDTO) async throws {
 		let needGiftIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
-			for (id, date) in ids {
+			for (id, info) in ids {
 				group.addTask { [self] in
 					let context = coreDataStack.newBackgroundContext()
 					return try await context.perform { @Sendable in
@@ -210,7 +215,12 @@ final class Router: Sendable {
 						fr.predicate = NSPredicate(format: "imageID == %@", id as NSUUID)
 
 						if let gift = try context.fetch(fr).first {
-							guard date > (gift.lastUpdated ?? .distantPast) else { return nil }
+							guard info.isDeleted == false else {
+								gift.isArchived = true
+								return nil
+							}
+
+							guard info.lastUpdated > (gift.lastUpdated ?? .distantPast) else { return nil }
 							return gift.imageID
 						} else {
 							return id
@@ -235,8 +245,8 @@ final class Router: Sendable {
 		}
 	}
 
-	private func processGift(dto: Gift.DTO, imageData: Data, from peer: MCPeerID.SendableDTO) async throws {
-		async let imageURL = ScannerViewModel.url(for: dto.imageID)
+	private func processGift(dto: Gift.DTO, imageData: Data?, from peer: MCPeerID.SendableDTO) async throws {
+		async let imageURL = Gift.url(for: dto.imageID)
 
 		let context = coreDataStack.newBackgroundContext()
 		try await context.perform { @Sendable in
@@ -259,7 +269,7 @@ final class Router: Sendable {
 		} catch {
 			print("Error creating storage directory: \(error)")
 		}
-		try await imageData.write(to: imageURL)
+		try await imageData?.write(to: imageURL)
 
 		let currentCount = pendingGiftCounts[peer, default: 0]
 		let newCount = currentCount - 1
@@ -298,16 +308,19 @@ final class Router: Sendable {
 		return .recipient(dto)
 	}
 
-	private func listAllGiftIDs() async throws -> Router.Response {
+	private func listAllGiftIDs() async throws -> Response {
 		let context = coreDataStack.mainContext
 
 		let giftsInfo = try await context.perform { @Sendable in
 			let fr = Gift.fetchRequest()
 
 			let gifts = try context.fetch(fr)
-			return gifts.reduce(into: [UUID: Date]()) {
+			return gifts.reduce(into: [UUID: Response.ListItemInfo]()) {
 				guard let id = $1.imageID else { return }
-				$0[id] = $1.lastUpdated
+				$0[id] = Response.ListItemInfo(
+					lastUpdated: $1.dto.lastUpdated,
+					isDeleted: $1.isArchived
+				)
 			}
 		}
 
@@ -316,7 +329,7 @@ final class Router: Sendable {
 
 	private func retrieveGift(withID id: UUID) async throws -> Response {
 		async let imageData = {
-			let imageURL = await ScannerViewModel.url(for: id)
+			let imageURL = await Gift.url(for: id)
 			return try Data(contentsOf: imageURL)
 		}()
 

@@ -101,11 +101,8 @@ extension SceneDelegate: ListViewController.Coordinator {
 
 		try context.performAndWait {
 			let gift = try scannerVM.fro.object(for: objectID)
-			if let id = gift.imageID {
-				let url = ScannerViewModel.url(for: id)
-				try FileManager.default.removeItem(at: url)
-			}
-			context.delete(gift)
+			gift.isArchived = true
+			gift.update()
 			try context.save()
 		}
 	}
@@ -206,7 +203,10 @@ extension SceneDelegate: UIImagePickerControllerDelegate & UINavigationControlle
 			}
 
 			let scaledImage = await image.imageByScaling(toSize: CGSize(scalar: 640), mode: .pixels)
-			async let imageSave: Void = viewModel.storeImage(scaledImage, for: id)
+			async let imageSave: Void = {
+				guard let scaledImage else { return }
+				await Gift.storeImage(scaledImage, for: id)
+			}()
 
 			try await dbSave
 			await imageSave

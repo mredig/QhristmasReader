@@ -12,8 +12,6 @@ class ScannerViewModel {
 
 	private(set) var capturingImageID: UUID?
 
-	var storedItems: [URL]
-
 	weak var delegate: Delegate?
 
 	static let storageDirectory: URL = .applicationSupportDirectory.appending(component: "Images")
@@ -23,6 +21,7 @@ class ScannerViewModel {
 
 	init(coreDataStack: CoreDataStack) throws {
 		let request = Gift.fetchRequest()
+		request.predicate = NSPredicate(format: "isArchived == NO")
 		request.sortDescriptors = [
 			.init(keyPath: \Gift.label, ascending: true)
 		]
@@ -30,7 +29,6 @@ class ScannerViewModel {
 		self.fro = try FetchedResultObserver(
 			fetchRequest: request,
 			managedObjectContext: coreDataStack.mainContext)
-		self.storedItems = Self.storedItems()
 
 		Task {
 			try fro.start()
@@ -40,27 +38,8 @@ class ScannerViewModel {
 		}
 	}
 
-	static func url(for id: UUID) -> URL {
-		storageDirectory.appending(component: id.uuidString.lowercased()).appendingPathExtension("jpg")
-	}
-
-	static private func storedItems() -> [URL] {
-		do {
-			let content = try FileManager
-				.default
-				.contentsOfDirectory(at: storageDirectory, includingPropertiesForKeys: nil)
-				.filter { $0.pathExtension == "jpg" }
-				.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
-			
-			return content
-		} catch {
-			print("Error listing content: \(error)")
-			return []
-		}
-	}	
-
 	func foundCode(_ code: UUID) {
-		let url = Self.url(for: code)
+		let url = Gift.url(for: code)
 
 		do {
 			let imageData = try Data(contentsOf: url)
@@ -71,25 +50,6 @@ class ScannerViewModel {
 		} catch {
 			capturingImageID = code
 			delegate?.scannerViewModel(self, didNotFindCodeMatch: code)
-		}
-	}
-
-	func storeImage(_ image: UIImage?, for id: UUID?) {
-		defer { capturingImageID = nil }
-		guard let image else { return }
-		guard let id = id ?? capturingImageID else { return }
-
-		guard
-			let imageData = image.jpegData(compressionQuality: 0.85)
-		else { return }
-
-		let url = Self.url(for: id)
-		do {
-			try FileManager.default.createDirectory(at: Self.storageDirectory, withIntermediateDirectories: true)
-			try imageData.write(to: url)
-			storedItems.append(url)
-		} catch {
-			print("Cant save cuz \(error.localizedDescription)")
 		}
 	}
 

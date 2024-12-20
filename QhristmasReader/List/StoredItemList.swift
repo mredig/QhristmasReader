@@ -23,7 +23,7 @@ struct StoredItemList: View {
 					let object = viewModel.fro.maybeObject(for: objectID)
 
 					if
-						let object, let id = object.imageID, case let url = ScannerViewModel.url(for: id) {
+						let object, let id = object.imageID, case let url = Gift.url(for: id) {
 						Button(
 							action: {
 								coordinator.storedItemList(self, didTapItem: url)
@@ -41,10 +41,16 @@ struct StoredItemList: View {
 				}
 			}
 		} else {
-			Text("Sync or Scan!")
-				.font(.largeTitle)
-				.foregroundStyle(.secondary)
-				.bold()
+			VStack {
+				Text("Sync or Scan!")
+					.font(.largeTitle)
+					.foregroundStyle(.secondary)
+					.bold()
+
+				Text("(Buttons at the top of the screen)")
+					.font(.caption)
+					.foregroundStyle(.secondary)
+			}
 		}
 	}
 
