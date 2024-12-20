@@ -27,7 +27,7 @@
 		<false/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Syncing with peers</string>
+	<string>Local access is required to sync lists with friends and family. Data is only shared with people you give it to.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_qhristmasreader._tcp</string>
