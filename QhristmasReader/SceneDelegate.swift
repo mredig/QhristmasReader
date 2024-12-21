@@ -73,7 +73,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	private func showGiverUI(animated: Bool) {
 		let listVC = ListViewController(viewModel: viewModel, coordinator: self, coreDataStack: coreDataStack)
-		navigationController.setViewControllers([listVC], animated: animated)
+		navigationController.setViewControllers(establishOnboardingHistory() + [listVC], animated: animated)
+	}
+
+	private func establishOnboardingHistory() -> [UIViewController] {
+		[
+			UIHostingController(rootView: OnboardFirst(coordinator: self)),
+			UIHostingController(rootView: OnboardSecond(coordinator: self)),
+		]
 	}
 }
 
@@ -223,6 +230,8 @@ extension SceneDelegate: OnboardFirst.Coordinator, OnboardSecond.Coordinator {
 	}
 
 	func onboardViewDidTapGivingButton(_ onboardView: OnboardSecond) {
+		DefaultsManager.shared[.userMode] = .give
+
 		showGiverUI(animated: true)
 	}
 }
