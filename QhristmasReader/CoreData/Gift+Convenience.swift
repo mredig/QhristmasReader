@@ -17,12 +17,11 @@ extension Gift {
 
 	var dto: DTO {
 		guard
-			let imageID,
-			let originID
+			let imageID
 		else { fatalError("imageID or originID missing") }
 		return DTO(
 			imageID: imageID,
-			originID: originID,
+			originID: originID ?? imageID,
 			label: label,
 			lastUpdated: lastUpdated ?? .distantPast,
 			recipients: Set(recipients.compactMap(\.id)))

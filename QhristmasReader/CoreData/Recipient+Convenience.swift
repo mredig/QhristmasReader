@@ -16,12 +16,11 @@ extension Recipient {
 	var dto: DTO {
 		guard
 			let id,
-			let name,
-			let originID
+			let name
 		else { fatalError("Missing name, id, or originID") }
 		return DTO(
 			id: id,
-			originID: originID,
+			originID: originID ?? id,
 			lastUpdated: lastUpdated ?? .distantPast,
 			name: name,
 			gifts: Set(gifts.compactMap(\.imageID)))
