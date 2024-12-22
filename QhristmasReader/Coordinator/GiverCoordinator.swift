@@ -46,9 +46,12 @@ class GiverCoordinator: NSObject, NavigationChildCoordinator {
 
 	private func showSyncScreen(asHost: Bool, username: String) {
 		Task {
-			let syncVC = await SyncController(asHost: asHost, username: username, coreDataStack: coreDataStack)
-
-			navigationController?.pushViewController(syncVC, animated: true)
+			let syncCoordinator = await SyncCoordinator(
+				parentNavigationCoordinator: self,
+				asHost: asHost,
+				username: username,
+				coreDataStack: coreDataStack)
+			addChildCoordinator(syncCoordinator)
 		}
 	}
 
