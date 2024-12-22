@@ -3,7 +3,7 @@ import SwiftUI
 import CoreData
 import SwiftPizzaSnips
 
-class GiverCoordinator: NSObject, NavigationChildCoordinator {
+class GiverListCoordinator: NSObject, NavigationChildCoordinator {
 	var parentNavigationCoordinator: (any NavigationCoordinatorChain)?
 	var childCoordinators: [any Coordinator] = []
 
@@ -69,7 +69,7 @@ class GiverCoordinator: NSObject, NavigationChildCoordinator {
 	}
 }
 
-extension GiverCoordinator: ListViewController.Coordinator {
+extension GiverListCoordinator: ListViewController.Coordinator {
 	func listViewControllerDidTapScannerButton(_ listViewController: ListViewController) {
 		let scannerView = QRCodeScannerView { [weak self] code in
 			self?.scannerVM.foundCode(code)
@@ -136,7 +136,7 @@ extension GiverCoordinator: ListViewController.Coordinator {
 	}
 }
 
-extension GiverCoordinator: ScannerViewModel.Delegate {
+extension GiverListCoordinator: ScannerViewModel.Delegate {
 	func scannerViewModel(
 		_ scannerViewModel: ScannerViewModel,
 		didFindCodeMatch code: UUID,
@@ -157,7 +157,7 @@ extension GiverCoordinator: ScannerViewModel.Delegate {
 	}
 }
 
-extension GiverCoordinator: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+extension GiverListCoordinator: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
 	func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
 		picker.dismiss(animated: true)
 	}
