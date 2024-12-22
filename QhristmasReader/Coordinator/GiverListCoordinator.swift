@@ -40,6 +40,7 @@ class GiverListCoordinator: NSObject, NavigationCoordinator {
 			coreDataStack: coreDataStack)
 		self.hostingController = listVC
 		scannerVM.delegate = self
+		navigationController.delegate = self
 	}
 
 	func start() {
@@ -193,5 +194,9 @@ extension GiverListCoordinator: UIImagePickerControllerDelegate & UINavigationCo
 			try await dbSave
 			await imageSave
 		}
+	}
+
+	func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+		superNavigationController(navigationController, didShow: viewController, animated: animated)
 	}
 }

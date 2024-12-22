@@ -58,3 +58,9 @@ extension RootCoordinator: GiverRootCoordinator.Delegate {
 		navigationController.popToRootViewController(animated: false)
 	}
 }
+
+extension RootCoordinator: UINavigationControllerDelegate {
+	func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+		superNavigationController(navigationController, didShow: viewController, animated: animated)
+	}
+}
