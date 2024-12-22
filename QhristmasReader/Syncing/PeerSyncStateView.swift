@@ -26,7 +26,6 @@ class PeerSyncStateView: UIView {
 		}
 	}
 
-
 	private let stackview = UIStackView().with {
 		$0.axis = .vertical
 		$0.alignment = .fill
