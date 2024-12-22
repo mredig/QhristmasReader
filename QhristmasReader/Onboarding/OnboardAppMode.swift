@@ -2,10 +2,11 @@ import SwiftUI
 import SwiftPizzaSnips
 
 @MainActor
-struct OnboardSecond: OnboardView {
+struct OnboardAppMode: OnboardView {
 	@MainActor
 	protocol Coordinator: AnyObject {
-		func onboardViewDidTapGivingButton(_ onboardView: OnboardSecond)
+		func onboardViewDidTapGivingButton(_ onboardView: OnboardAppMode)
+		func onboardViewDidTapOpeningButton(_ onboardView: OnboardAppMode)
 	}
 
 	unowned let coordinator: Coordinator
@@ -21,11 +22,12 @@ struct OnboardSecond: OnboardView {
 			VStack {
 				headingText("Will you be opening or giving gifts with this app?", ofSize: 24)
 
-//				giftyButton(
-//					titled: "Opening",
-//					action: {
-//					})
-				Text("Opening not yet implemented - test giving for now")
+				giftyButton(
+					titled: "Opening",
+					action: {
+						coordinator.onboardViewDidTapOpeningButton(self)
+					})
+//				Text("Opening not yet implemented - test giving for now")
 
 				giftyButton(
 					titled: "Giving",

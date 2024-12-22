@@ -2,10 +2,10 @@ import SwiftUI
 import SwiftPizzaSnips
 
 @MainActor
-struct OnboardFirst: OnboardView {
+struct OnboardGetGiverName: OnboardView {
 	@MainActor
 	protocol Coordinator: AnyObject {
-		func onboardViewDidTapNextButton(_ onboardView: OnboardFirst)
+		func onboardViewDidTapNextButton(_ onboardView: OnboardGetGiverName)
 	}
 
 	@ObservedObject

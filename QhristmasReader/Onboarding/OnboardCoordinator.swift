@@ -15,7 +15,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 	var rootController: UIViewController {
 		hostingController
 	}
-	private var hostingController: UIHostingController<OnboardFirst>!
+	private var hostingController: UIHostingController<OnboardAppMode>!
 
 	unowned let delegate: Delegate
 
@@ -25,7 +25,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 	) {
 		self.parentNavigationCoordinator = parentCoordinator
 		self.delegate = delegate
-		let onboardView = OnboardFirst(coordinator: self)
+		let onboardView = OnboardAppMode(coordinator: self)
 		self.hostingController = UIHostingController(rootView: onboardView)
 	}
 
@@ -44,25 +44,25 @@ class OnboardCoordinator: NavigationChildCoordinator {
 	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
 }
 
-extension OnboardCoordinator: OnboardFirst.Coordinator {
-	func onboardViewDidTapNextButton(_ onboardView: OnboardFirst) {
-		let next = OnboardSecond(coordinator: self)
+extension OnboardCoordinator: OnboardAppMode.Coordinator {
+	func onboardViewDidTapGivingButton(_ onboardView: OnboardAppMode) {
+		DefaultsManager.shared[.userMode] = .give
+
+		let next = OnboardGetGiverName(coordinator: self)
 		let vc = UIHostingController(rootView: next)
 
 		chainNavigationController?.pushViewController(vc, animated: true)
 	}
-}
 
-extension OnboardCoordinator: OnboardSecond.Coordinator {
-	func onboardViewDidTapGivingButton(_ onboardView: OnboardSecond) {
-		DefaultsManager.shared[.userMode] = .give
-
-		delegate.onboardCoordinator(self, shouldShowGiverUI: true)
-	}
-
-	func onboardViewDidTapOpeningButton(_ onboardView: OnboardSecond) {
+	func onboardViewDidTapOpeningButton(_ onboardView: OnboardAppMode) {
 		DefaultsManager.shared[.userMode] = .get
 
-		delegate.onboardCoordinator(self, shouldShowRecipientUI: true)
+//		delegate.onboardCoordinator(self, shouldShowRecipientUI: true)
+	}
+}
+
+extension OnboardCoordinator: OnboardGetGiverName.Coordinator {
+	func onboardViewDidTapNextButton(_ onboardView: OnboardGetGiverName) {
+		delegate.onboardCoordinator(self, shouldShowGiverUI: true)
 	}
 }
