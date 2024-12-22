@@ -37,6 +37,8 @@ class QaptureController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		title = "Code Scanner"
+		navigationItem.largeTitleDisplayMode = .never
 		view.backgroundColor = .systemBackground
 
 		var constraints: [NSLayoutConstraint] = []

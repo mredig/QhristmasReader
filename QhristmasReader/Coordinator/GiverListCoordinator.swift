@@ -77,14 +77,11 @@ class GiverListCoordinator: NSObject, NavigationCoordinator {
 
 extension GiverListCoordinator: ListViewController.Coordinator {
 	func listViewControllerDidTapScannerButton(_ listViewController: ListViewController) {
-		let scannerView = QRCodeScannerView { [weak self] code in
-			self?.scannerVM.foundCode(code)
-		}
+		let qapCoordinator = QaptureCoordinator(
+			parentNavigationCoordinator: self,
+			viewModel: scannerVM)
 
-		let vc = UIHostingController(rootView: scannerView)
-		vc.navigationItem.title = "Code Scanner"
-		vc.navigationItem.largeTitleDisplayMode = .never
-		chainNavigationController?.pushViewController(vc, animated: true)
+		addChildCoordinator(qapCoordinator)
 	}
 	
 	func listViewControllerDidTapSyncButton(_ listViewController: ListViewController) {
