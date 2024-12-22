@@ -49,13 +49,3 @@ extension Coordinator {
 		}
 	}
 }
-
-protocol NavigationChildCoordinator: Coordinator {
-	var parentNavigationCoordinator: (any NavigationCoordinator)? { get }
-}
-
-extension NavigationChildCoordinator {
-	var parentCoordinator: (any Coordinator)? { parentNavigationCoordinator }
-
-	var navigationController: UINavigationController? { parentNavigationCoordinator?.navigationController }
-}

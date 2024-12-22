@@ -6,7 +6,7 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 	var previousViewControllers: [UIViewController] = []
 	var rootController: UIViewController { navigationController }
 
-	var parentCoordinator: (any Coordinator)? = nil
+	let parentNavigationCoordinator: (any NavigationCoordinatorChain)? = nil
 	var childCoordinators: [any Coordinator] = []
 
 	let coreDataStack: CoreDataStack

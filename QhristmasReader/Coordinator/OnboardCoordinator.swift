@@ -9,7 +9,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 		func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowGiverUI animated: Bool)
 		func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowRecipientUI animated: Bool)
 	}
-	var parentNavigationCoordinator: (any NavigationCoordinator)?
+	var parentNavigationCoordinator: (any NavigationCoordinatorChain)?
 	var childCoordinators: [any Coordinator] = []
 
 	var rootController: UIViewController {
@@ -30,7 +30,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 	}
 
 	func start() {
-		parentNavigationCoordinator?.navigationController.pushViewController(rootController, animated: false)
+		chainNavigationController?.pushViewController(rootController, animated: true)
 
 		guard let userMode = DefaultsManager.shared[.userMode] else { return }
 		switch userMode {
@@ -49,7 +49,7 @@ extension OnboardCoordinator: OnboardFirst.Coordinator {
 		let next = OnboardSecond(coordinator: self)
 		let vc = UIHostingController(rootView: next)
 
-		parentNavigationCoordinator?.navigationController.pushViewController(vc, animated: true)
+		chainNavigationController?.pushViewController(vc, animated: true)
 	}
 }
 

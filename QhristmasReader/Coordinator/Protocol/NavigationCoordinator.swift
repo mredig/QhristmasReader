@@ -2,7 +2,7 @@ import UIKit
 import SwiftPizzaSnips
 
 @MainActor
-protocol NavigationCoordinator: NSObject, Coordinator, UINavigationControllerDelegate {
+protocol NavigationCoordinator: NSObject, NavigationChildCoordinator, UINavigationControllerDelegate {
 	var navigationController: UINavigationController { get }
 	var previousViewControllers: [UIViewController] { get set }
 

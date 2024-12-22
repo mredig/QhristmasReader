@@ -4,7 +4,7 @@ import CoreData
 import SwiftPizzaSnips
 
 class GiverCoordinator: NSObject, NavigationChildCoordinator {
-	var parentNavigationCoordinator: (any NavigationCoordinator)?
+	var parentNavigationCoordinator: (any NavigationCoordinatorChain)?
 	var childCoordinators: [any Coordinator] = []
 
 	var rootController: UIViewController {
@@ -39,7 +39,7 @@ class GiverCoordinator: NSObject, NavigationChildCoordinator {
 	}
 
 	func start() {
-		navigationController?.pushViewController(rootController, animated: true)
+		chainNavigationController?.pushViewController(rootController, animated: true)
 	}
 	
 	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
@@ -59,7 +59,7 @@ class GiverCoordinator: NSObject, NavigationChildCoordinator {
 			let vc = GiftDetailController(viewModel: viewModel)
 			vc.view.clipsToBounds = true
 			vc.navigationItem.largeTitleDisplayMode = .never
-			navigationController?.pushViewController(vc, animated: true)
+			chainNavigationController?.pushViewController(vc, animated: true)
 		} catch {
 			print("Error showing gift: \(error)")
 		}
@@ -75,7 +75,7 @@ extension GiverCoordinator: ListViewController.Coordinator {
 		let vc = UIHostingController(rootView: scannerView)
 		vc.navigationItem.title = "Code Scanner"
 		vc.navigationItem.largeTitleDisplayMode = .never
-		navigationController?.pushViewController(vc, animated: true)
+		chainNavigationController?.pushViewController(vc, animated: true)
 	}
 	
 	func listViewControllerDidTapSyncButton(_ listViewController: ListViewController) {
@@ -100,7 +100,7 @@ extension GiverCoordinator: ListViewController.Coordinator {
 		]
 			.forEach { alert.addAction($0) }
 
-		navigationController?.present(alert, animated: true)
+		chainNavigationController?.present(alert, animated: true)
 	}
 	
 	func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL) {
@@ -150,7 +150,7 @@ extension GiverCoordinator: ScannerViewModel.Delegate {
 		picker.delegate = self
 		picker.isModalInPresentation = true
 		picker.modalPresentationStyle = .fullScreen
-		navigationController?.present(picker, animated: true)
+		chainNavigationController?.present(picker, animated: true)
 	}
 }
 
