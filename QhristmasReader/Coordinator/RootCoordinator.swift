@@ -12,6 +12,8 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 	let coreDataStack: CoreDataStack
 	let window: UIWindow
 
+	private var onboardCoordinator: OnboardCoordinator!
+
 	init(coreDataStack: CoreDataStack, window: UIWindow) {
 		self.coreDataStack = coreDataStack
 		self.window = window
@@ -22,6 +24,7 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 		window.makeKeyAndVisible()
 
 		let onboardCoordinator = OnboardCoordinator(parentCoordinator: self, delegate: self)
+		self.onboardCoordinator = onboardCoordinator
 		addChildCoordinator(onboardCoordinator)
 	}
 
@@ -30,11 +33,28 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 
 extension RootCoordinator: OnboardCoordinator.Delegate {
 	func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowGiverUI animated: Bool) {
-		let giverCoordinator = GiverCoordinator(parentNavigationCoordinator: self, coreDataStack: coreDataStack)
-		addChildCoordinator(giverCoordinator)
+		let giverRoot = GiverRootCoordinator(
+			parentCoordinator: self,
+			delegate: self,
+			coreDataStack: coreDataStack)
+
+		addChildCoordinator(giverRoot)
+		window.rootViewController = giverRoot.tabBarController
 	}
 
 	func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowRecipientUI animated: Bool) {
 
+	}
+
+}
+
+extension RootCoordinator: GiverRootCoordinator.Delegate {
+	func giverRootCoordinatorDidActivateAppModeReset(_ giverRootCoordinator: GiverRootCoordinator) {
+		Task {
+			await giverRootCoordinator.finish()
+		}
+
+		window.rootViewController = navigationController
+		navigationController.popToRootViewController(animated: false)
 	}
 }

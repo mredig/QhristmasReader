@@ -3,23 +3,27 @@ import SwiftUI
 import CoreData
 import SwiftPizzaSnips
 
-class GiverListCoordinator: NSObject, NavigationChildCoordinator {
-	var parentNavigationCoordinator: (any NavigationCoordinatorChain)?
+class GiverListCoordinator: NSObject, NavigationCoordinator {
+
+	var previousViewControllers: [UIViewController] = []
+	let parentCoordinator: (any Coordinator)?
+	let parentNavigationCoordinator: (any NavigationCoordinatorChain)? = nil
 	var childCoordinators: [any Coordinator] = []
 
 	var rootController: UIViewController {
 		hostingController
 	}
+	let navigationController = UINavigationController()
 	private var hostingController: ListViewController!
 
 	let scannerVM: ScannerViewModel
 	let coreDataStack: CoreDataStack
 
 	init(
-		parentNavigationCoordinator: (any NavigationCoordinator),
+		parentCoordinator: Coordinator?,
 		coreDataStack: CoreDataStack
 	) {
-		self.parentNavigationCoordinator = parentNavigationCoordinator
+		self.parentCoordinator = parentCoordinator
 		self.coreDataStack = coreDataStack
 
 		do {
@@ -39,7 +43,9 @@ class GiverListCoordinator: NSObject, NavigationChildCoordinator {
 	}
 
 	func start() {
-		chainNavigationController?.pushViewController(rootController, animated: true)
+		navigationController.pushViewController(rootController, animated: true)
+		navigationController.tabBarItem.title = "List"
+		navigationController.tabBarItem.image = UIImage(systemName: "list.bullet")
 	}
 	
 	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
