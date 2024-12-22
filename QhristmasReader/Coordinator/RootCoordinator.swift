@@ -17,6 +17,8 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 	init(coreDataStack: CoreDataStack, window: UIWindow) {
 		self.coreDataStack = coreDataStack
 		self.window = window
+		super.init()
+		navigationController.delegate = self
 	}
 
 	func start() {
