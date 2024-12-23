@@ -92,6 +92,8 @@ extension Gift {
 		let label: String?
 		let lastUpdated: Date
 		let recipients: Set<UUID>
+
+		var imageData: Data?
 	}
 
 	public override func prepareForDeletion() {
