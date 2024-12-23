@@ -11,8 +11,6 @@ struct RouterActor: GlobalActor {
 
 @RouterActor
 final class Router: Sendable {
-
-
 	protocol Delegate: AnyObject {
 		func router(_ router: Router, didUpdateRecipientPendingCount count: Int, for peer: MCPeerID.SendableDTO)
 		func router(_ router: Router, didUpdatePendingGiftCount count: Int, for peer: MCPeerID.SendableDTO)
@@ -355,4 +353,4 @@ final class Router: Sendable {
 	}
 }
 
-extension NSManagedObjectContext: @retroactive @unchecked Sendable {}
+
