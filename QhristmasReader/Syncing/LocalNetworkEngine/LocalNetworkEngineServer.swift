@@ -5,7 +5,6 @@ class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 	private nonisolated let advertiser: MCNearbyServiceAdvertiser
 
 	let coreDataStack: CoreDataStack
-	let router: Router
 
 	@MainActor
 	init(
@@ -16,9 +15,7 @@ class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 	) async {
 		self.advertiser = advertiser
 		self.coreDataStack = coreDataStack
-		self.router = await Router(coreDataStack: coreDataStack, session: session)
 		super.init(selfPeerID: selfPeerID, session: session)
-		self.router.delegate = self
 		advertiser.delegate = self
 	}
 
@@ -67,34 +64,7 @@ extension LocalNetworkEngineServer: MCNearbyServiceAdvertiserDelegate {
 extension LocalNetworkEngineServer {
 	override func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
 		Task {
-//			try await router.route(data: data, from: peerID.getSendableData())
 			try await handleRawRequest(data, peer: peerID)
-		}
-	}
-}
-
-extension LocalNetworkEngineServer: Router.Delegate {
-	nonisolated
-	func router(_ router: Router, didUpdatePendingGiftCount count: Int, for peer: MCPeerID.SendableDTO) {
-		do {
-			let peerID = try MCPeerID.fromSendableData(peer)
-//			updateSyncView(for: peerID) {
-//				$0.itemsToSyncCount = count
-//			}
-		} catch {
-			print("Error updating peer: \(error)")
-		}
-	}
-
-	nonisolated
-	func router(_ router: Router, didUpdateRecipientPendingCount count: Int, for peer: MCPeerID.SendableDTO) {
-		do {
-			let peerID = try MCPeerID.fromSendableData(peer)
-//			updateSyncView(for: peerID) {
-//				$0.itemsToSyncCount = count
-//			}
-		} catch {
-			print("Error updating peer: \(error)")
 		}
 	}
 }
@@ -220,8 +190,6 @@ extension LocalNetworkEngineServer {
 		dto.imageData = try? await imageData
 		return dto
 	}
-
-
 
 	enum ServerError: Error {
 		case invalidInvocationComponent

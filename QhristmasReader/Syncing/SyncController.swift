@@ -57,12 +57,6 @@ class SyncController: UIViewController {
 		view.backgroundColor = .systemBackground
 	}
 
-	override func viewDidDisappear(_ animated: Bool) {
-		super.viewDidDisappear(animated)
-
-//		advertiser?.stopAdvertisingPeer()
-	}
-
 	private func startHosting(server: LocalNetworkEngineServer) {
 		server.start()
 	}
@@ -115,9 +109,7 @@ extension SyncController: LocalNetworkEngine.Delegate {
 	func localNetworkEngine(
 		_ localNetworkEngine: LocalNetworkEngine,
 		didStartConnectingToNewPeer peer: MCPeerID
-	) {
-
-	}
+	) {}
 	
 	nonisolated
 	func localNetworkEngine(
@@ -138,9 +130,7 @@ extension SyncController: LocalNetworkEngine.Delegate {
 	func localNetworkEngine(
 		_ localNetworkEngine: LocalNetworkEngine,
 		didDisconnectFromPeer peer: MCPeerID
-	) {
-
-	}
+	) {}
 }
 
 extension SyncController {
@@ -185,7 +175,6 @@ extension SyncController {
 		}
 
 		for id in needRecipientIDs {
-//			try await send(to: peer, request: .getRecipient(id: id))
 			let recipient = try await client.sendRetrieveRecipientRequest(id)
 			try await storeRecipient(recipient)
 		}
@@ -236,7 +225,6 @@ extension SyncController {
 //		pendingGiftCounts[peer] = needGiftIDs.count
 
 		for id in needGiftIDs {
-//			try await send(to: peer, request: .getGift(id: id))
 			let giftDTO = try await client.sendRetrieveGiftRequest(id)
 			try await storeGift(giftDTO)
 		}
@@ -292,120 +280,4 @@ extension SyncController {
 //		pendingGiftCounts[peer] = newCount
 //		delegate?.router(self, didUpdatePendingGiftCount: newCount, for: peer)
 	}
-
 }
-
-//extension SyncController: MCSessionDelegate {
-//	nonisolated
-//	func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-//		Task {
-//			switch state {
-//			case .notConnected:
-//				print("\(peerID) disconnected")
-//				await removeSyncView(for: peerID)
-//			case .connecting:
-//				print("\(peerID) is connecting")
-//				updateSyncView(for: peerID) {
-//					$0.connectedPeer = peerID.displayName
-//					$0.state = .connecting
-//				}
-//			case .connected:
-//				updateSyncView(for: peerID) { [weak self] in
-//					$0.connectedPeer = peerID.displayName
-//					$0.state = .connected
-//					self?.browser?.dismiss(animated: true)
-//				}
-//
-//				Task {
-//					try await router.send(to: peerID.getSendableData(), request: .listRecipientIDs)
-//				}
-//			@unknown default:
-//				fatalError("Unknown state: \(state)")
-//			}
-//		}
-//	}
-//	
-//	nonisolated
-//	func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-//		Task {
-//			try await router.route(data: data, from: peerID.getSendableData())
-//		}
-//	}
-//	
-//	nonisolated
-//	func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-//		print("\(#function): \(peerID) - \(streamName)")
-//	}
-//	
-//	nonisolated
-//	func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
-//		print("\(#function): \(peerID) - \(resourceName)")
-//	}
-//	
-//	nonisolated
-//	func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: (any Error)?) {
-//		print("\(#function): \(peerID) - \(resourceName)")
-//	}
-//}
-//
-//extension SyncController: MCBrowserViewControllerDelegate {
-//	nonisolated
-//	func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
-//		Task { @MainActor in
-//			browserViewController.dismiss(animated: true)
-//		}
-//	}
-//
-//	nonisolated
-//	func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
-//		Task { @MainActor in
-//			browserViewController.dismiss(animated: true)
-//		}
-//	}
-//
-//	nonisolated
-//	func browserViewController(_ browserViewController: MCBrowserViewController, shouldPresentNearbyPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) -> Bool {
-//		print("\(#function): \(peerID) - \(info as Any)")
-//		return true
-//	}
-//}
-//
-//extension SyncController: MCNearbyServiceAdvertiserDelegate {
-//	nonisolated
-//	func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: any Error) {
-//		print("\(#function): \(peerID) - \(error)")
-//	}
-//
-//	nonisolated
-//	func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-//		print("\(#function): \(peerID) - \(context as Any)")
-//
-//		invitationHandler(true, session)
-//	}
-//}
-//
-//extension SyncController: Router.Delegate {
-//	nonisolated
-//	func router(_ router: Router, didUpdatePendingGiftCount count: Int, for peer: MCPeerID.SendableDTO) {
-//		do {
-//			let peerID = try MCPeerID.fromSendableData(peer)
-//			updateSyncView(for: peerID) {
-//				$0.itemsToSyncCount = count
-//			}
-//		} catch {
-//			print("Error updating peer: \(error)")
-//		}
-//	}
-//
-//	nonisolated
-//	func router(_ router: Router, didUpdateRecipientPendingCount count: Int, for peer: MCPeerID.SendableDTO) {
-//		do {
-//			let peerID = try MCPeerID.fromSendableData(peer)
-//			updateSyncView(for: peerID) {
-//				$0.itemsToSyncCount = count
-//			}
-//		} catch {
-//			print("Error updating peer: \(error)")
-//		}
-//	}
-//}
