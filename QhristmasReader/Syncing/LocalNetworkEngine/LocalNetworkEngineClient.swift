@@ -128,11 +128,19 @@ extension LocalNetworkEngineClient {
 //		let _: Void = try await sendRequest(request).response
 //	}
 
-	func sendRecipientListRequest() async throws -> [UUID: ListItemInfo] {
+	func sendRecipientChangelistRequest() async throws -> [UUID: ListItemInfo] {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(
 			server: server.getSendableData(),
 			invocation: .listRecipientIDs)
+		return try await sendRequest(request).response
+	}
+
+	func sendRecipientListRequest() async throws -> [Recipient.DTO] {
+		guard let server else { throw ClientError.notConnected }
+		let request = try Request(
+			server: server.getSendableData(),
+			invocation: .listRecipients)
 		return try await sendRequest(request).response
 	}
 

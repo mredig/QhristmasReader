@@ -135,7 +135,7 @@ extension SyncController: LocalNetworkEngine.Delegate {
 
 extension SyncController {
 	private func syncRecipientList(with client: LocalNetworkEngineClient, syncGiftsToo: Bool) async throws {
-		let availableRecipients = try await client.sendRecipientListRequest()
+		let availableRecipients = try await client.sendRecipientChangelistRequest()
 
 		let needRecipientIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
 			for (id, info) in availableRecipients {

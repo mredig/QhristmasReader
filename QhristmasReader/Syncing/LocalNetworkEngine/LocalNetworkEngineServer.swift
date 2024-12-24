@@ -101,6 +101,9 @@ extension LocalNetworkEngineServer {
 		case "getGift":
 			let baseResponse = try await handleGiftRequest(meta)
 			response = try Response(fromRequest: meta, body: baseResponse)
+		case Invocation.listRecipients.rawValue:
+			let baseResponse = try await handleRecipientListDTOsRequest(meta)
+			response = try Response(fromRequest: meta, body: baseResponse)
 		default:
 			print("Unknown invocation requested: '\(meta.invocation.rawValue)'")
 			return
@@ -110,6 +113,21 @@ extension LocalNetworkEngineServer {
 		let clientID = try MCPeerID.fromSendableData(meta.client)
 		try session.send(responseData, toPeers: [clientID], with: .reliable)
 		print("Replied to request from \(peer) for '\(meta.invocation.rawValue)'")
+	}
+
+	func handleRecipientListDTOsRequest(_ meta: RequestMeta) async throws -> [Recipient.DTO] {
+		let context = coreDataStack.mainContext
+
+		let recipientsInfo = try await context.perform { @Sendable in
+			let fr = Recipient.fetchRequest()
+			fr.sortDescriptors = [
+				.init(keyPath: \Recipient.name, ascending: true)
+			]
+
+			return try context.fetch(fr).map(\.dto)
+		}
+
+		return recipientsInfo
 	}
 
 	func handleRecipientListRequest(_ meta: RequestMeta) async throws -> [UUID: ListItemInfo] {
@@ -200,6 +218,7 @@ extension LocalNetworkEngineServer {
 
 extension LocalNetworkEngine.Invocation {
 	static let listRecipientIDs: Self = "listRecipientIDs"
+	static let listRecipients: Self = "listRecipients"
 	static let listGiftIDs: Self = "listGiftIDs"
 	static func getRecipient(id: UUID) -> Self {
 		"getRecipient/\(id.uuidString)"
