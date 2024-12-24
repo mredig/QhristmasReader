@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct RecipientQueryResultView: View {
+struct RecipientQueryResultView: OnboardView {
 
 	let message: String?
 	enum Result {
@@ -11,25 +11,29 @@ struct RecipientQueryResultView: View {
 
 	let myDTOs: Set<Recipient.DTO>
 
+	let gradientColors: [Color] = []
+
 	var body: some View {
-		VStack {
+		VStack(spacing: 8) {
 			switch result {
 			case .yours(let array):
-				Text("Yay! This one is yours!")
-					.multilineTextAlignment(.center)
-					.lineLimit(0)
+				headingText("Yay! This one is yours!", ofSize: 36)
 
 				if Set(array) != myDTOs {
-					Text("Name(s) on gift: \(array.map(\.name).joined(separator: ", "))")
+					headingText("Name(s) on gift:", ofSize: 18)
+
+					Text("\(array.map(\.name).joined(separator: ", "))")
 						.multilineTextAlignment(.center)
 						.lineLimit(0)
 				}
 
 			case .others(let array):
-				Text("Aww, gotta put this one back.")
+				headingText("Aww, gotta put this one back.", ofSize: 24)
 
 				if let array {
 					Text("It's actually for \(array.map(\.name).joined(separator: ", "))")
+						.multilineTextAlignment(.center)
+						.lineLimit(0)
 				}
 			}
 
@@ -48,5 +52,6 @@ struct RecipientQueryResultView: View {
 				Color.gradientColorLightAlt
 			}
 		}
+		.frame(maxWidth: .infinity, maxHeight: .infinity)
 	}
 }
