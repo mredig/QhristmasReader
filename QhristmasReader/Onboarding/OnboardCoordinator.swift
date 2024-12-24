@@ -38,9 +38,9 @@ class OnboardCoordinator: NavigationChildCoordinator {
 		guard let userMode = DefaultsManager.shared[.userMode] else { return }
 		switch userMode {
 		case .get:
-			delegate.onboardCoordinator(self, shouldShowGiverUI: false)
-		case .give:
 			delegate.onboardCoordinator(self, shouldShowRecipientUI: false)
+		case .give:
+			delegate.onboardCoordinator(self, shouldShowGiverUI: false)
 		}
 	}
 

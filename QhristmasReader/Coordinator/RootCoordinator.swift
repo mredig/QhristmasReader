@@ -47,7 +47,6 @@ extension RootCoordinator: OnboardCoordinator.Delegate {
 	func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowRecipientUI animated: Bool) {
 
 	}
-
 }
 
 extension RootCoordinator: GiverRootCoordinator.Delegate {
