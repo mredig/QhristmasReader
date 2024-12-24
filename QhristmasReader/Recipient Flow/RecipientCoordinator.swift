@@ -28,6 +28,7 @@ class RecipientCoordinator: NavigationChildCoordinator {
 			selectedRecipients: selectedRecipients.sorted(by: { $0.name < $1.name}),
 			coordinator: self)
 		let vc = UIHostingController(rootView: baseView)
+		vc.view.clipsToBounds = true
 		self.recipientBase = vc
 	}
 
