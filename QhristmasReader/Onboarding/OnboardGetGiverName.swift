@@ -21,19 +21,12 @@ struct OnboardGetGiverName: OnboardView {
 	var body: some View {
 		onboardingWrapper(bowOnTop: true) {
 			VStack(alignment: .center, spacing: 8) {
-				Text("Hello!")
-					.font(.system(size: 64, weight: .semibold, design: .rounded))
-					.multilineTextAlignment(.center)
 
-				Text("Who are you?")
-					.font(.system(size: 32, weight: .semibold, design: .rounded))
-					.multilineTextAlignment(.center)
+				headingText("Hello!", ofSize: 64)
 
-				Text("(So when giving/receiving you can be identified)")
-					.font(.system(size: 14, weight: .semibold, design: .rounded))
-					.multilineTextAlignment(.center)
+				headingText("What is the event we are celebrating?", ofSize: 32)
 
-				TextField("Your name", text: defaults[binding: .username])
+				TextField("Event name", text: defaults[binding: .username])
 					.textFieldStyle(.roundedBorder)
 					.multilineTextAlignment(.center)
 					.autocorrectionDisabled()
@@ -42,17 +35,10 @@ struct OnboardGetGiverName: OnboardView {
 				Spacer()
 					.frame(maxHeight: 24)
 
-				Button(
-					action: {
-						coordinator.onboardViewDidTapNextButton(self)
-					},
-					label: {
-						Text("Next")
-							.padding()
-							.background(Color.primary)
-					})
+				giftyButton(titled: "Next") {
+					coordinator.onboardViewDidTapNextButton(self)
+				}
 				.disabled(defaults[.username].isEmpty)
-				.cornerRadius(8)
 			}
 			.padding()
 		}
