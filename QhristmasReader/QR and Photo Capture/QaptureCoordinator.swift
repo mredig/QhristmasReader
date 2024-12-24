@@ -1,6 +1,5 @@
 import SwiftPizzaSnips
 import UIKit
-import AVFoundation
 
 class QaptureCoordinator: NavigationChildCoordinator {
 	let parentNavigationCoordinator: (any NavigationCoordinatorChain)?
@@ -32,7 +31,6 @@ class QaptureCoordinator: NavigationChildCoordinator {
 
 extension QaptureCoordinator: QaptureController.Delegate {
 	func qaptureController(_ qaptureController: QaptureController, didCaptureID uuid: UUID) {
-		AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
 		viewModel.foundCode(uuid)
 	}
 }

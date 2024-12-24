@@ -50,11 +50,24 @@ extension RecipientCoordinator: RecipientBaseView.Coordinator {
 
 extension RecipientCoordinator: QaptureController.Delegate {
 	func qaptureController(_ qaptureController: QaptureController, didCaptureID uuid: UUID) {
-//		print(uuid)
 		Task {
 			do {
 				let result = try await client.sendGiftQuery(uuid, queriedRecipients: Set(selectedRecipients.map(\.id)))
 				print(result)
+
+				let resultView = {
+					if result.matchingCrossover.isOccupied {
+						let allRecipients = (result.allRecipients ?? selectedRecipients).sorted(by: { $0.name < $1.name })
+						return RecipientQueryResultView(message: result.message, result: .yours(allRecipients), myDTOs: selectedRecipients)
+					} else {
+						let all = result.allRecipients.map { recipients in recipients.sorted(by: { $0.name < $1.name })}
+						return RecipientQueryResultView(message: result.message, result: .others(all), myDTOs: selectedRecipients)
+					}
+				}()
+
+				let vc = UIHostingController(rootView: resultView)
+
+				chainNavigationController?.pushViewController(vc, animated: true)
 			} catch {
 				print("Error querying gift: \(error)")
 			}

@@ -24,6 +24,8 @@ class QaptureController: UIViewController {
 
 	private let captureSession: AVCaptureSession
 
+	var vibrateOnIDRecognition = true
+
 	init() {
 		let captureSession = AVCaptureSession()
 		self.captureSession = captureSession
@@ -169,6 +171,9 @@ extension QaptureController: AVCaptureMetadataOutputObjectsDelegate {
 	//			outlineLayer?.path = nil
 	//		}
 
+			if vibrateOnIDRecognition {
+				AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+			}
 			delegate?.qaptureController(self, didCaptureID: id)
 		}
 	}
