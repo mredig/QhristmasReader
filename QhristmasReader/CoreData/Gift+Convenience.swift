@@ -86,7 +86,7 @@ extension Gift {
 		lastUpdated = .now
 	}
 
-	struct DTO: Codable {
+	struct DTO: Codable, Sendable, Hashable {
 		let imageID: UUID
 		let originID: UUID
 		let label: String?

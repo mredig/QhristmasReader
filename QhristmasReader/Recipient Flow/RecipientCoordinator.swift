@@ -50,6 +50,14 @@ extension RecipientCoordinator: RecipientBaseView.Coordinator {
 
 extension RecipientCoordinator: QaptureController.Delegate {
 	func qaptureController(_ qaptureController: QaptureController, didCaptureID uuid: UUID) {
-		print(uuid)
+//		print(uuid)
+		Task {
+			do {
+				let result = try await client.sendGiftQuery(uuid, queriedRecipients: Set(selectedRecipients.map(\.id)))
+				print(result)
+			} catch {
+				print("Error querying gift: \(error)")
+			}
+		}
 	}
 }

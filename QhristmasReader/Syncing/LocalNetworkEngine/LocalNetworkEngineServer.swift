@@ -86,33 +86,43 @@ extension LocalNetworkEngineServer {
 	func handleRawRequest(_ data: Data, peer: MCPeerID) async throws {
 		let meta = try decoder.decode(RequestMeta.self, from: data)
 		print("Processing incoming request from \(peer) for '\(meta.invocation.rawValue)'")
-
-		let response: Response
-		switch meta.invocation.components.first {
-		case Invocation.listRecipientIDs.rawValue:
-			let baseResponse = try await handleRecipientListRequest(meta)
-			response = try Response(fromRequest: meta, body: baseResponse)
-		case "getRecipient":
-			let baseResponse = try await handleRecipientRequest(meta)
-			response = try Response(fromRequest: meta, body: baseResponse)
-		case Invocation.listGiftIDs.rawValue:
-			let baseResponse = try await handleGiftListRequest(meta)
-			response = try Response(fromRequest: meta, body: baseResponse)
-		case "getGift":
-			let baseResponse = try await handleGiftRequest(meta)
-			response = try Response(fromRequest: meta, body: baseResponse)
-		case Invocation.listRecipients.rawValue:
-			let baseResponse = try await handleRecipientListDTOsRequest(meta)
-			response = try Response(fromRequest: meta, body: baseResponse)
-		default:
-			print("Unknown invocation requested: '\(meta.invocation.rawValue)'")
-			return
-		}
-
-		let responseData = try encoder.encode(response)
 		let clientID = try MCPeerID.fromSendableData(meta.client)
-		try session.send(responseData, toPeers: [clientID], with: .reliable)
-		print("Replied to request from \(peer) for '\(meta.invocation.rawValue)'")
+
+		do {
+			let response: Response
+			switch meta.invocation.components.first {
+			case Invocation.listRecipientIDs.rawValue:
+				let baseResponse = try await handleRecipientListRequest(meta)
+				response = try Response(fromRequest: meta, body: baseResponse)
+			case "getRecipient":
+				let baseResponse = try await handleRecipientRequest(meta)
+				response = try Response(fromRequest: meta, body: baseResponse)
+			case Invocation.listGiftIDs.rawValue:
+				let baseResponse = try await handleGiftListRequest(meta)
+				response = try Response(fromRequest: meta, body: baseResponse)
+			case "getGift":
+				let baseResponse = try await handleGiftRequest(meta)
+				response = try Response(fromRequest: meta, body: baseResponse)
+			case Invocation.listRecipients.rawValue:
+				let baseResponse = try await handleRecipientListDTOsRequest(meta)
+				response = try Response(fromRequest: meta, body: baseResponse)
+			case Invocation.giftQuery(giftID: UUID()).components.first:
+				let payload = try decoder.decode(RequestPayload<Set<UUID>>.self, from: data)
+				let baseResponse = try await handleGiftQuery(meta, payload: payload.body)
+				response = try Response(fromRequest: meta, body: baseResponse)
+			default:
+				print("Unknown invocation requested: '\(meta.invocation.rawValue)'")
+				return
+			}
+
+			let responseData = try encoder.encode(response)
+			try session.send(responseData, toPeers: [clientID], with: .reliable)
+			print("Replied to request from \(peer) for '\(meta.invocation.rawValue)'")
+		} catch {
+			let errorResponse = ErrorResponse(message: "Error processing request: \(error.localizedDescription)")
+			let errorData = try encoder.encode(errorResponse)
+			try session.send(errorData, toPeers: [clientID], with: .reliable)
+		}
 	}
 
 	func handleRecipientListDTOsRequest(_ meta: RequestMeta) async throws -> [Recipient.DTO] {
@@ -208,8 +218,49 @@ extension LocalNetworkEngineServer {
 		return dto
 	}
 
+	struct GiftQueryResponse: Codable, Hashable, Sendable {
+		let queriedIDs: Set<UUID>
+		let matchingCrossover: Set<UUID>
+		let allRecipients: Set<Recipient.DTO>?
+		let gift: Gift.DTO?
+
+		let message: String?
+	}
+	func handleGiftQuery(_ meta: RequestMeta, payload: Set<UUID>) async throws -> GiftQueryResponse {
+		guard
+			let idStr = meta.invocation.components[optional: 1],
+			let giftID = UUID(uuidString: idStr)
+		else { throw ServerError.invalidInvocationComponent }
+
+		let context = coreDataStack.newBackgroundContext()
+		let (giftDTO, recips) = try await context.perform { @Sendable in
+			let fr = Gift.fetchRequest()
+			fr.fetchLimit = 1
+			fr.predicate = NSPredicate(format: "imageID == %@", giftID as NSUUID)
+
+			guard
+				let gift = try? context.fetch(fr).first
+			else { throw ServerError.noMatchingGift }
+
+			let recips = gift.recipients.map(\.dto)
+			return (gift.dto, recips)
+		}
+
+		return GiftQueryResponse(
+			queriedIDs: payload,
+			matchingCrossover: payload.intersection(recips.map(\.id)),
+			allRecipients: Set(recips),
+			gift: giftDTO,
+			message: nil)
+	}
+
 	enum ServerError: Error {
 		case invalidInvocationComponent
+		case noMatchingGift
+	}
+
+	struct ErrorResponse: Codable, Sendable, Hashable {
+		let message: String
 	}
 }
 
@@ -225,6 +276,9 @@ extension LocalNetworkEngine.Invocation {
 	}
 	static func getGift(id: UUID) -> Self {
 		"getGift/\(id.uuidString)"
+	}
+	static func giftQuery(giftID: UUID) -> Self {
+		"giftQuery/\(giftID.uuidString)"
 	}
 	static let ping: Self = "ping"
 }

@@ -181,6 +181,13 @@ extension LocalNetworkEngineClient {
 		return try await sendRequest(request).response
 	}
 
+	func sendGiftQuery(_ giftID: UUID, queriedRecipients: Set<UUID>) async throws -> LocalNetworkEngineServer.GiftQueryResponse {
+		guard let server else { throw ClientError.notConnected }
+		let request = try Request(server: server.getSendableData(), invocation: .giftQuery(giftID: giftID), body: queriedRecipients)
+
+		return try await sendRequest(request).response
+	}
+
 	enum ClientError: Error {
 		case notConnected
 	}
