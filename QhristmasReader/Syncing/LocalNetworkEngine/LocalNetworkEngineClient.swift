@@ -2,11 +2,17 @@
 
 class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 
+	protocol Delegate: AnyObject {
+		func localNetworkEngineClient(_ localNetworkEngineClient: LocalNetworkEngineClient, finishedWithEvent: Event)
+	}
+
 	let browserVC: MCBrowserViewController
 
 	private var pendingRequests: [UUID: CheckedContinuation<(Data, [String: String]), Error>] = [:]
 
 	private var server: MCPeerID?
+
+	weak var clientDelegate: Delegate?
 
 	@MainActor
 	override init(session: MCSession) {
@@ -34,6 +40,13 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 	override func didConnect(to peer: MCPeerID) {
 		guard server == nil else { return }
 		server = peer
+		clientDelegate?.localNetworkEngineClient(self, finishedWithEvent: .connectionMade)
+	}
+
+	enum Event {
+		case userTapCancel
+		case userTapDone
+		case connectionMade
 	}
 }
 
@@ -41,12 +54,14 @@ extension LocalNetworkEngineClient: MCBrowserViewControllerDelegate {
 	func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
 		Task { @MainActor in
 			browserViewController.dismiss(animated: true)
+			clientDelegate?.localNetworkEngineClient(self, finishedWithEvent: .userTapDone)
 		}
 	}
 	
 	func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
 		Task { @MainActor in
 			browserViewController.dismiss(animated: true)
+			clientDelegate?.localNetworkEngineClient(self, finishedWithEvent: .userTapCancel)
 		}
 	}
 }
