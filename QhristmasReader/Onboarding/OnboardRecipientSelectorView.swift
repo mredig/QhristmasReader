@@ -24,7 +24,7 @@ struct OnboardRecipientSelectorView: OnboardView {
 			case .loading:
 				Text("Loading recipient list...")
 			case .loaded(let recipieints):
-				recipientList(recipieints).safeAreaPadding(.top, 64)
+				recipientList(recipieints).safeAreaPadding(.vertical, 64)
 			}
 
 		}
