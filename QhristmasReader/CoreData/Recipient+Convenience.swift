@@ -58,7 +58,7 @@ extension Recipient {
 		gifts.insert(gift)
 	}
 
-	struct DTO: Codable {
+	struct DTO: Codable, Sendable, Hashable {
 		let id: UUID
 		let originID: UUID
 		let lastUpdated: Date
