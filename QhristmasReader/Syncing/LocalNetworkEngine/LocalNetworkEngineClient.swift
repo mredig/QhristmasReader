@@ -9,12 +9,12 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 	private var server: MCPeerID?
 
 	@MainActor
-	override init(selfPeerID: MCPeerID, session: MCSession) {
+	override init(session: MCSession) {
 		let browser = MCBrowserViewController(serviceType: Self.serviceTypeIdentifier, session: session)
 		self.browserVC = browser
 		browser.maximumNumberOfPeers = 1
 
-		super.init(selfPeerID: selfPeerID, session: session)
+		super.init(session: session)
 		browser.delegate = self
 	}
 
@@ -23,7 +23,7 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 		let peerID = MCPeerID(displayName: username)
 		let session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 
-		self.init(selfPeerID: peerID, session: session)
+		self.init(session: session)
 	}
 
 	@MainActor

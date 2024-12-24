@@ -8,14 +8,13 @@ class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 
 	@MainActor
 	init(
-		selfPeerID: MCPeerID,
 		session: MCSession,
 		advertiser: MCNearbyServiceAdvertiser,
 		coreDataStack: CoreDataStack
 	) async {
 		self.advertiser = advertiser
 		self.coreDataStack = coreDataStack
-		super.init(selfPeerID: selfPeerID, session: session)
+		super.init(session: session)
 		advertiser.delegate = self
 	}
 
@@ -24,7 +23,7 @@ class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 		let session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
 		let advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: Self.serviceTypeIdentifier)
 
-		await self.init(selfPeerID: peerID, session: session, advertiser: advertiser, coreDataStack: coreDataStack)
+		await self.init(session: session, advertiser: advertiser, coreDataStack: coreDataStack)
 	}
 
 	func start() {

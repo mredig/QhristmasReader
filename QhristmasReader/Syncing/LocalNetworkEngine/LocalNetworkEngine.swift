@@ -16,15 +16,14 @@ class LocalNetworkEngine: NSObject {
 
 	static let serviceTypeIdentifier = "qhristmasreader"
 
-	nonisolated let selfPeerID: MCPeerID
+	var selfPeerID: MCPeerID { session.myPeerID }
 	nonisolated let session: MCSession
 	var connectedPeers: [MCPeerID] { session.connectedPeers }
 
 	weak var delegate: Delegate?
 
 	@MainActor
-	init(selfPeerID: MCPeerID, session: MCSession) {
-		self.selfPeerID = selfPeerID
+	init(session: MCSession) {
 		self.session = session
 		super.init()
 		session.delegate = self
