@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import SwiftPizzaSnips
+@preconcurrency import SwiftPizzaSnips
 
 @MainActor
 class GiverRootCoordinator: Coordinator {
@@ -21,23 +22,27 @@ class GiverRootCoordinator: Coordinator {
 	unowned let delegate: Delegate
 
 	private var httpTask: Task<Void, Error>?
+	private var syncHost: LocalNetworkEngineServer
 
 	init(
 		parentCoordinator: (any Coordinator)?,
 		delegate: Delegate,
 		coreDataStack: CoreDataStack
-	) {
+	) async {
+		async let syncHostLoad = LocalNetworkEngineServer(username: "Host", coreDataStack: coreDataStack)
 		self.parentCoordinator = parentCoordinator
 		self.delegate = delegate
 		self.coreDataStack = coreDataStack
-
-		httpTask = Task {
+		self.httpTask = Task {
 			do {
 				try await HTTPHost.startListening(coreDataStack: coreDataStack)
 			} catch {
 				print("Error listening for http connections: \(error)")
 			}
 		}
+
+		let syncHost = await syncHostLoad
+		self.syncHost = syncHost
 	}
 
 	func start() {
@@ -59,8 +64,15 @@ class GiverRootCoordinator: Coordinator {
 		vc.tabBarItem.title = "App Mode Reset"
 		vc.tabBarItem.image = UIImage(systemName: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90")
 
+		let syncServerControlVM = SyncServerControlView.ViewModel(server: syncHost)
+		let serverControlView = SyncServerControlView(viewModel: syncServerControlVM)
+		let serverControlVC = UIHostingController(rootView: serverControlView)
+		serverControlVC.tabBarItem.title = "Sync Server Control"
+		serverControlVC.tabBarItem.image = UIImage(systemName: "server.rack")
+
 		tabBarController.viewControllers = [
 			giverList.navigationController,
+			serverControlVC,
 			vc
 		]
 	}

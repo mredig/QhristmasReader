@@ -31,6 +31,17 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 	}
 
 	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
+
+	private func performAsyncPresentationTask(@_implicitSelfCapture _ presentation: @escaping @Sendable @MainActor () async -> Void) {
+		guard asyncPresentationTask == nil else { return }
+
+		let newTask = Task {
+			await presentation()
+
+			asyncPresentationTask = nil
+		}
+		asyncPresentationTask = newTask
+	}
 }
 
 extension RootCoordinator: OnboardCoordinator.Delegate {

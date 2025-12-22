@@ -1,41 +1,35 @@
-import UIKit
+import SwiftUI
 @preconcurrency import SwiftPizzaSnips
 @preconcurrency import MultipeerConnectivity
 
-class SyncController: UIViewController {
-
-	enum Mode {
-		case server(LocalNetworkEngineServer)
-		case client(LocalNetworkEngineClient)
-	}
-
-	let mode: Mode
+class SyncViewController: UIHostingController<SyncView> {
 	let coreDataStack: CoreDataStack
+	private let syncClient: LocalNetworkEngineClient
 
-	@MainActor
-	private var syncStateViews: [MCPeerID: PeerSyncStateView] = [:]
+	let viewModel: SyncView.ViewModel
 
-	private let stackView = UIStackView().with {
-		$0.axis = .vertical
-		$0.alignment = .fill
-		$0.distribution = .fill
-	}
-
-	init(asHost: Bool, username: String, coreDataStack: CoreDataStack) async {
-		if asHost {
-			let server = await LocalNetworkEngineServer(username: username, coreDataStack: coreDataStack)
-			mode = .server(server)
-		} else {
-			let client = LocalNetworkEngineClient(username: username)
-			mode = .client(client)
-		}
+	init(username: String, coreDataStack: CoreDataStack) async {
+		self.syncClient = LocalNetworkEngineClient(username: username)
 		self.coreDataStack = coreDataStack
 
-		super.init(nibName: nil, bundle: nil)
+		let vm = SyncView.ViewModel()
+		self.viewModel = vm
+
+		super.init(rootView: SyncView(viewModel: vm))
+
+		vm.onSearch = { [weak self, syncClient] in
+			self?.showBrowser(client: syncClient)
+		}
+
+		syncClient.delegate = self
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	deinit {
+		syncClient.disconnect()
 	}
 
 	override func viewDidLoad() {
@@ -43,68 +37,16 @@ class SyncController: UIViewController {
 
 		title = "Peer Sync"
 		navigationItem.largeTitleDisplayMode = .always
-		configureViewLayout()
-
-		switch mode {
-		case .server(let localNetworkEngineServer):
-			localNetworkEngineServer.delegate = self
-			startHosting(server: localNetworkEngineServer)
-		case .client(let localNetworkEngineClient):
-			localNetworkEngineClient.delegate = self
-			showBrowser(client: localNetworkEngineClient)
-		}
 
 		view.backgroundColor = .systemBackground
-	}
-
-	private func startHosting(server: LocalNetworkEngineServer) {
-		server.start()
 	}
 
 	private func showBrowser(client: LocalNetworkEngineClient) {
 		client.showBrowser(on: navigationController ?? self)
 	}
-
-	private func configureViewLayout() {
-		var constraints: [NSLayoutConstraint] = []
-		defer { NSLayoutConstraint.activate(constraints) }
-
-		view.addSubview(stackView)
-		constraints += view.constrain(stackView, inset: NSDirectionalEdgeInsets(scalar: 24), safeAreaDirections: .all, directions: .init(top: .create, leading: .create, bottom: .skip, trailing: .create))
-
-		constraints += [
-			stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 24)
-		]
-	}
-
-	private func getSyncView(for peerID: MCPeerID) -> PeerSyncStateView {
-		if let existing = syncStateViews[peerID] {
-			return existing
-		} else {
-			let new = PeerSyncStateView()
-			new.connectedPeer = peerID.displayName
-			syncStateViews[peerID] = new
-			stackView.addArrangedSubview(new)
-
-			return new
-		}
-	}
-
-	private nonisolated func updateSyncView(for peerID: MCPeerID, _ block: @MainActor @escaping (PeerSyncStateView) -> Void) {
-		Task { @MainActor in
-			let view = getSyncView(for: peerID)
-
-			block(view)
-		}
-	}
-
-	private func removeSyncView(for peerID: MCPeerID) {
-		syncStateViews[peerID]?.removeFromSuperview()
-		syncStateViews[peerID] = nil
-	}
 }
 
-extension SyncController: LocalNetworkEngine.Delegate {
+extension SyncViewController: LocalNetworkEngine.Delegate {
 	nonisolated
 	func localNetworkEngine(
 		_ localNetworkEngine: LocalNetworkEngine,
@@ -116,13 +58,8 @@ extension SyncController: LocalNetworkEngine.Delegate {
 		_ localNetworkEngine: LocalNetworkEngine,
 		didConnectToNewPeer peer: MCPeerID
 	) {
-		Task { @MainActor [self] in
-			switch mode {
-			case.client(let client):
-				try await syncRecipientList(with: client, syncGiftsToo: true)
-			case .server(_):
-				print("dno")
-			}
+		Task { @MainActor in
+			viewModel.peers.append(peer)
 		}
 	}
 	
@@ -130,11 +67,17 @@ extension SyncController: LocalNetworkEngine.Delegate {
 	func localNetworkEngine(
 		_ localNetworkEngine: LocalNetworkEngine,
 		didDisconnectFromPeer peer: MCPeerID
-	) {}
+	) {
+		Task { @MainActor in
+			viewModel.peers.removeAll(where: {
+				$0 === peer
+			})
+		}
+	}
 }
 
-extension SyncController {
-	private func syncRecipientList(with client: LocalNetworkEngineClient, syncGiftsToo: Bool) async throws {
+extension SyncViewController {
+	private func syncRecipientList(with client: HTTPClient, syncGiftsToo: Bool) async throws {
 		let availableRecipients = try await client.sendRecipientChangelistRequest()
 
 		let needRecipientIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
@@ -175,7 +118,7 @@ extension SyncController {
 		}
 
 		for id in needRecipientIDs {
-			let recipient = try await client.sendRetrieveRecipientRequest(id)
+			let recipient = try await client.getRecipient(id: id)
 			try await storeRecipient(recipient)
 		}
 
@@ -183,8 +126,8 @@ extension SyncController {
 		try await syncGiftList(with: client)
 	}
 
-	private func syncGiftList(with client: LocalNetworkEngineClient) async throws {
-		let availableGifts = try await client.sendGiftListRequest()
+	private func syncGiftList(with client: HTTPClient) async throws {
+		let availableGifts = try await client.sendGiftChangelistRequest()
 
 		let needGiftIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
 			for (id, info) in availableGifts {
@@ -225,7 +168,7 @@ extension SyncController {
 //		pendingGiftCounts[peer] = needGiftIDs.count
 
 		for id in needGiftIDs {
-			let giftDTO = try await client.sendRetrieveGiftRequest(id)
+			let giftDTO = try await client.getGift(id: id)
 			try await storeGift(giftDTO)
 		}
 	}
@@ -279,5 +222,36 @@ extension SyncController {
 //		let newCount = currentCount - 1
 //		pendingGiftCounts[peer] = newCount
 //		delegate?.router(self, didUpdatePendingGiftCount: newCount, for: peer)
+	}
+}
+
+struct SyncView: View {
+	@State
+	var viewModel: ViewModel
+
+	var body: some View {
+		VStack {
+			if let onSearch = viewModel.onSearch {
+				Button(
+					action: {
+						onSearch()
+					},
+					label: {
+						Text("Search for Sync Host")
+					})
+			}
+
+			List(viewModel.peers, id: \.self) { peer in
+				Text(peer.displayName)
+			}
+		}
+	}
+
+	@Observable
+	@MainActor
+	class ViewModel {
+		var onSearch: (() -> Void)?
+
+		var peers: [MCPeerID] = []
 	}
 }

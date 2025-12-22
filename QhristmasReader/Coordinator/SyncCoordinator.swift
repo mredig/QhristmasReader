@@ -8,7 +8,7 @@ class SyncCoordinator: NavigationChildCoordinator {
 	var rootController: UIViewController {
 		syncController
 	}
-	let syncController: SyncController
+	let syncController: SyncViewController
 
 	let coreDataStack: CoreDataStack
 
@@ -21,7 +21,7 @@ class SyncCoordinator: NavigationChildCoordinator {
 		self.parentNavigationCoordinator = parentNavigationCoordinator
 		self.coreDataStack = coreDataStack
 
-		let syncVC = await SyncController(asHost: asHost, username: username, coreDataStack: coreDataStack)
+		let syncVC = await SyncViewController(username: username, coreDataStack: coreDataStack)
 		self.syncController = syncVC
 	}
 
