@@ -147,14 +147,6 @@ extension LocalNetworkEngineClient {
 }
 
 extension LocalNetworkEngineClient {
-//	func sendPing() async throws {
-//		guard let server else { throw ClientError.notConnected }
-//		let request = try Request(
-//			server: server.getSendableData(),
-//			invocation: .ping)
-//		let _: Void = try await sendRequest(request).response
-//	}
-
 	func sendHostAddressRequest() async throws -> URL {
 		guard let server else { throw ClientError.notConnected }
 
@@ -173,57 +165,6 @@ extension LocalNetworkEngineClient {
 
 		let url = try URL(string: "http://\(host):8080").unwrap(orThrow: ClientError.decodeError(message: "Invalid url"))
 		return url
-	}
-
-	@available(*, deprecated, message: "Use http now")
-	func sendRecipientChangelistRequest() async throws -> [UUID: ListItemInfo] {
-		guard let server else { throw ClientError.notConnected }
-		let request = try Request(
-			server: server.getSendableData(),
-			invocation: .listRecipientIDs)
-		return try await sendRequest(request).response
-	}
-
-	@available(*, deprecated, message: "Use http now")
-	func sendRecipientListRequest() async throws -> [Recipient.DTO] {
-		guard let server else { throw ClientError.notConnected }
-		let request = try Request(
-			server: server.getSendableData(),
-			invocation: .listRecipients)
-		return try await sendRequest(request).response
-	}
-
-	@available(*, deprecated, message: "Use http now")
-	func sendRetrieveRecipientRequest(_ recipientID: UUID) async throws -> Recipient.DTO {
-		guard let server else { throw ClientError.notConnected }
-		let request = try Request(server: server.getSendableData(), invocation: .getRecipient(id: recipientID))
-
-		return try await sendRequest(request).response
-	}
-
-	@available(*, deprecated, message: "Use http now")
-	func sendGiftListRequest() async throws -> [UUID: ListItemInfo] {
-		guard let server else { throw ClientError.notConnected }
-		let request = try Request(
-			server: server.getSendableData(),
-			invocation: .listGiftIDs)
-		return try await sendRequest(request).response
-	}
-
-	@available(*, deprecated, message: "Use http now")
-	func sendRetrieveGiftRequest(_ giftID: UUID) async throws -> Gift.DTO {
-		guard let server else { throw ClientError.notConnected }
-		let request = try Request(server: server.getSendableData(), invocation: .getGift(id: giftID))
-
-		return try await sendRequest(request).response
-	}
-
-	@available(*, deprecated, message: "Use http now")
-	func sendGiftQuery(_ giftID: UUID, queriedRecipients: Set<UUID>) async throws -> LocalNetworkEngineServer.GiftQueryResponse {
-		guard let server else { throw ClientError.notConnected }
-		let request = try Request(server: server.getSendableData(), invocation: .giftQuery(giftID: giftID), body: queriedRecipients)
-
-		return try await sendRequest(request).response
 	}
 
 	enum ClientError: Error {
