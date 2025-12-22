@@ -20,6 +20,8 @@ class GiverRootCoordinator: Coordinator {
 	let coreDataStack: CoreDataStack
 	unowned let delegate: Delegate
 
+	private var httpTask: Task<Void, Error>?
+
 	init(
 		parentCoordinator: (any Coordinator)?,
 		delegate: Delegate,
@@ -28,6 +30,14 @@ class GiverRootCoordinator: Coordinator {
 		self.parentCoordinator = parentCoordinator
 		self.delegate = delegate
 		self.coreDataStack = coreDataStack
+
+		httpTask = Task {
+			do {
+				try await HTTPHost.startListening(coreDataStack: coreDataStack)
+			} catch {
+				print("Error listening for http connections: \(error)")
+			}
+		}
 	}
 
 	func start() {
@@ -55,5 +65,7 @@ class GiverRootCoordinator: Coordinator {
 		]
 	}
 	
-	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
+	func coordinatorDidFinish(_ coordinator: any Coordinator) {
+		httpTask?.cancel()
+	}
 }
