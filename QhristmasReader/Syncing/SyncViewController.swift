@@ -65,19 +65,9 @@ extension SyncViewController: LocalNetworkEngine.Delegate {
 
 				syncClient.dismissBrowser()
 
-				let ipAddress = try await syncClient.sendHostAddressRequest()
+				let ipURL = try await syncClient.sendHostAddressRequest()
 
-				let rawAddress: String
-				switch ipAddress {
-				case .ip4(let ip4Address):
-					rawAddress = ip4Address.rawValue
-				case .ip6(let ip6Address):
-					rawAddress = ip6Address.rawValue
-				}
-
-				let url = try URL(string: "http://\(rawAddress):8080/").unwrap()
-
-				let client = HTTPClient(baseURL: url)
+				let client = HTTPClient(baseURL: ipURL)
 
 				try await syncRecipientList(with: client, syncGiftsToo: true)
 

@@ -155,13 +155,24 @@ extension LocalNetworkEngineClient {
 //		let _: Void = try await sendRequest(request).response
 //	}
 
-	func sendHostAddressRequest() async throws -> IPAddress {
+	func sendHostAddressRequest() async throws -> URL {
 		guard let server else { throw ClientError.notConnected }
 
 		let request = try Request(server: server.getSendableData(), invocation: .getHostIP)
 		let ipStrings: [String] = try await sendRequest(request).response
 		let ipString = try ipStrings.first.unwrap()
-		return try IPAddress(rawValue: ipString).unwrap(orThrow: ClientError.decodeError(message: "Invalid IP: \(ipString)"))
+		let ip = try IPAddress(rawValue: ipString).unwrap(orThrow: ClientError.decodeError(message: "Invalid IP: \(ipString)"))
+
+		let host: String
+		switch ip {
+		case .ip4(let address):
+			host = address.rawValue
+		case .ip6(let address):
+			host = address.rawValue
+		}
+
+		let url = try URL(string: "http://\(host):8080").unwrap(orThrow: ClientError.decodeError(message: "Invalid url"))
+		return url
 	}
 
 	@available(*, deprecated, message: "Use http now")
