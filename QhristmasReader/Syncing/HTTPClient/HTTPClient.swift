@@ -25,21 +25,21 @@ final class HTTPClient: Sendable {
 		let url = baseURL
 			.appending(components: Self.recipientsEndpoint, "listChangeStates")
 
-		return try await nh.downloadMahCodableDatas(for: url.generalRequest).decoded
+		return try await nh.downloadMahCodableDatas(for: url.generalRequest, decoder: LocalNetworkEngineServer.decoder).decoded
 	}
 
 	func sendRecipientListRequest() async throws -> [Recipient.ListDTO] {
 		let url = baseURL
 			.appending(components: Self.recipientsEndpoint, "list")
 
-		return try await nh.downloadMahCodableDatas(for: url.generalRequest).decoded
+		return try await nh.downloadMahCodableDatas(for: url.generalRequest, decoder: LocalNetworkEngineServer.decoder).decoded
 	}
 
 	func getRecipient(id: UUID) async throws -> Recipient.DTO {
 		let url = baseURL
 			.appending(components: Self.recipientsEndpoint, "id", id.uuidString)
 
-		return try await nh.downloadMahCodableDatas(for: url.generalRequest).decoded
+		return try await nh.downloadMahCodableDatas(for: url.generalRequest, decoder: LocalNetworkEngineServer.decoder).decoded
 	}
 
 	// MARK: - Gifts
@@ -47,7 +47,7 @@ final class HTTPClient: Sendable {
 		let url = baseURL
 			.appending(components: Self.giftsEndpoint, "listChangeStates")
 
-		return try await nh.downloadMahCodableDatas(for: url.generalRequest).decoded
+		return try await nh.downloadMahCodableDatas(for: url.generalRequest, decoder: LocalNetworkEngineServer.decoder).decoded
 	}
 
 	func queryGift(id: UUID, for recipients: Set<UUID>) async throws -> GiftsController.GiftQueryResponse {
@@ -69,6 +69,6 @@ final class HTTPClient: Sendable {
 		let url = baseURL
 			.appending(components: Self.giftsEndpoint, "id", id.uuidString)
 
-		return try await nh.downloadMahCodableDatas(for: url.generalRequest).decoded
+		return try await nh.downloadMahCodableDatas(for: url.generalRequest, decoder: LocalNetworkEngineServer.decoder).decoded
 	}
 }

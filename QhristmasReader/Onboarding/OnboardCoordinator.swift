@@ -102,7 +102,7 @@ extension OnboardCoordinator: OnboardRecipientSelectorView.Coordinator {
 	func onboardView(_ onboardView: OnboardRecipientSelectorView, didSelectRecipientsFromList recipients: Set<Recipient.ListDTO>) {
 		let coordinator = RecipientCoordinator(
 			parentNavigationCoordinator: self,
-			client: onboardView.viewModel.engine,
+			client: onboardView.viewModel.client,
 			selectedRecipients: recipients)
 
 		addChildCoordinator(coordinator)

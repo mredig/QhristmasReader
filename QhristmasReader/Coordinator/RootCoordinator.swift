@@ -14,6 +14,8 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 
 	private var onboardCoordinator: OnboardCoordinator!
 
+	private var asyncPresentationTask: Task<Void, Never>?
+
 	init(coreDataStack: CoreDataStack, window: UIWindow) {
 		self.coreDataStack = coreDataStack
 		self.window = window
@@ -46,13 +48,15 @@ class RootCoordinator: NSObject, NavigationCoordinator {
 
 extension RootCoordinator: OnboardCoordinator.Delegate {
 	func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowGiverUI animated: Bool) {
-		let giverRoot = GiverRootCoordinator(
-			parentCoordinator: self,
-			delegate: self,
-			coreDataStack: coreDataStack)
+		performAsyncPresentationTask {
+			let giverRoot = await GiverRootCoordinator(
+				parentCoordinator: self,
+				delegate: self,
+				coreDataStack: coreDataStack)
 
-		addChildCoordinator(giverRoot)
-		window.rootViewController = giverRoot.tabBarController
+			addChildCoordinator(giverRoot)
+			window.rootViewController = giverRoot.tabBarController
+		}
 	}
 
 	func onboardCoordinator(_ onboardCoordinator: OnboardCoordinator, shouldShowRecipientUI animated: Bool) {

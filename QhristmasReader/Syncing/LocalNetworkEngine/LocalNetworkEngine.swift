@@ -9,9 +9,17 @@ class LocalNetworkEngine: NSObject {
 
 	}
 
-	static let encoder = JSONEncoder()
+	static let encoder: JSONEncoder = {
+		let encoder = JSONEncoder()
+		encoder.dateEncodingStrategy = .iso8601
+		return encoder
+	}()
 	var encoder: JSONEncoder { Self.encoder }
-	static let decoder = JSONDecoder()
+	static let decoder: JSONDecoder = {
+		let decoder = JSONDecoder()
+		decoder.dateDecodingStrategy = .iso8601
+		return decoder
+	}()
 	var decoder: JSONDecoder { Self.decoder }
 
 	static let serviceTypeIdentifier = "qhristmasreader"

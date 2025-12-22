@@ -37,23 +37,17 @@ extension Gift {
 	}
 
 	convenience init(from dto: DTO, context: NSManagedObjectContext) throws {
-		self.init(imageID: dto.imageID, label: dto.label, context: context)
+		self.init(context: context)
 
 		self.originID = dto.originID
-
-		let recipients = try context.performAndWait {
-			let fr = Recipient.fetchRequest()
-			fr.predicate = NSPredicate(format: "id in %@", dto.recipients as NSSet)
-
-			let results = try context.fetch(fr)
-			return Set(results)
-		}
-		setRecipients(recipients)
-		lastUpdated = dto.lastUpdated
+		try update(from: dto, context: context)
 	}
 
 	func update(from dto: DTO, context: NSManagedObjectContext) throws {
 		update(imageID: .newValue(dto.imageID), label: .newValue(dto.label))
+
+		isGiven = dto.isGiven
+		isArchived = dto.isArchived
 
 		let recipientIDs = dto.recipients
 		let recipients = try context.performAndWait {

@@ -44,6 +44,10 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 		clientDelegate?.localNetworkEngineClient(self, finishedWithEvent: .connectionMade)
 	}
 
+	func disconnect() {
+		session.disconnect()
+	}
+
 	enum Event {
 		case userTapCancel
 		case userTapDone

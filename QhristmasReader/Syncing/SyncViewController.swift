@@ -59,7 +59,36 @@ extension SyncViewController: LocalNetworkEngine.Delegate {
 		didConnectToNewPeer peer: MCPeerID
 	) {
 		Task { @MainActor in
-			viewModel.peers.append(peer)
+			defer { syncClient.disconnect() }
+			do {
+				viewModel.peers.append(peer)
+
+				syncClient.browserVC.dismiss(animated: true)
+
+				let ipAddress = try await syncClient.sendHostAddressRequest()
+
+				let rawAddress: String
+				switch ipAddress {
+				case .ip4(let ip4Address):
+					rawAddress = ip4Address.rawValue
+				case .ip6(let ip6Address):
+					rawAddress = ip6Address.rawValue
+				}
+
+				let url = try URL(string: "http://\(rawAddress):8080/").unwrap()
+
+				let client = HTTPClient(baseURL: url)
+
+				try await syncRecipientList(with: client, syncGiftsToo: true)
+
+				let alertVC = UIAlertController(title: "Complete", message: "Sync Completed!", preferredStyle: .alert)
+				let okayButton = UIAlertAction(title: "Ok", style: .default)
+				alertVC.addAction(okayButton)
+
+				present(alertVC, animated: true)
+			} catch {
+				print("Error syncing with host: \(error)")
+			}
 		}
 	}
 	
@@ -83,7 +112,7 @@ extension SyncViewController {
 		let needRecipientIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
 			for (id, info) in availableRecipients {
 				group.addTask { [self] in
-					let context = await coreDataStack.newBackgroundContext()
+					let context = coreDataStack.newBackgroundContext()
 					return try await context.perform {
 						let fr = Recipient.fetchRequest()
 						fr.fetchLimit = 1
@@ -132,7 +161,7 @@ extension SyncViewController {
 		let needGiftIDs = try await withThrowingTaskGroup(of: UUID?.self) { group in
 			for (id, info) in availableGifts {
 				group.addTask { [self] in
-					let context = await coreDataStack.newBackgroundContext()
+					let context = coreDataStack.newBackgroundContext()
 					return try await context.perform { @Sendable in
 						let fr = Gift.fetchRequest()
 						fr.fetchLimit = 1
