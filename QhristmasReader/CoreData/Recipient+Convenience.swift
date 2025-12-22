@@ -26,6 +26,18 @@ extension Recipient {
 			gifts: Set(gifts.compactMap(\.imageID)))
 	}
 
+	var listDTO: ListDTO {
+		guard
+			let id,
+			let name
+		else { fatalError("Missing name, id, or originID") }
+		return ListDTO(
+			id: id,
+			originID: originID ?? id,
+			lastUpdated: lastUpdated ?? .distantPast,
+			name: name)
+	}
+
 	convenience init(name: String, context: NSManagedObjectContext) {
 		self.init(context: context)
 
@@ -64,5 +76,12 @@ extension Recipient {
 		let lastUpdated: Date
 		let name: String
 		let gifts: Set<UUID>
+	}
+
+	struct ListDTO: Codable, Sendable, Hashable {
+		let id: UUID
+		let originID: UUID
+		let lastUpdated: Date
+		let name: String
 	}
 }

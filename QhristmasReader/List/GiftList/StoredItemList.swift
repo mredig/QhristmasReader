@@ -63,8 +63,8 @@ struct StoredItemList: View {
 									},
 									label: {
 										Text("Gift Given!")
-											.foregroundStyle(.accent)
 									})
+								.tint(.accent)
 							})
 						}
 					}

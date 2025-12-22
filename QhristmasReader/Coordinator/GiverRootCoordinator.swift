@@ -43,10 +43,10 @@ class GiverRootCoordinator: Coordinator {
 				delegate.giverRootCoordinatorDidActivateAppModeReset(self)
 			},
 			label: {
-				Text("reset")
+				Text("Reset to mode selection screen")
 			})
 		let vc = UIHostingController(rootView: placeholder)
-		vc.tabBarItem.title = "Data Reset"
+		vc.tabBarItem.title = "App Mode Reset"
 		vc.tabBarItem.image = UIImage(systemName: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90")
 
 		tabBarController.viewControllers = [

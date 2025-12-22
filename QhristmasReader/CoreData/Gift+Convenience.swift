@@ -23,6 +23,8 @@ extension Gift {
 			imageID: imageID,
 			originID: originID ?? imageID,
 			label: label,
+			isArchived: isArchived,
+			isGiven: isGiven,
 			lastUpdated: lastUpdated ?? .distantPast,
 			recipients: Set(recipients.compactMap(\.id)))
 	}
@@ -90,6 +92,8 @@ extension Gift {
 		let imageID: UUID
 		let originID: UUID
 		let label: String?
+		let isArchived: Bool
+		let isGiven: Bool
 		let lastUpdated: Date
 		let recipients: Set<UUID>
 
