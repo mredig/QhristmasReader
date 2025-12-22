@@ -376,8 +376,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mredig/SwiftPizzaSnips";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.29;
+				branch = 0.4.38b;
+				kind = branch;
 			};
 		};
 		33E5E46E2CF867F9007155F7 /* XCRemoteSwiftPackageReference "VectorExtor" */ = {

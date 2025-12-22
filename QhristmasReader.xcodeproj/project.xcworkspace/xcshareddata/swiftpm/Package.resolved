@@ -1,5 +1,5 @@
 {
-  "originHash" : "70abab19b70248a17f8369458d607abd24bb7409d3e6ce7d86271409a4b7f612",
+  "originHash" : "8fa25cd0b0a2d7bdfdf748e9f9ceaba36f88d9f5e1b21e12a212eb7cce38adba",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mredig/SwiftPizzaSnips",
       "state" : {
-        "revision" : "4f3ac33dba8bfe432b617e76171d06acf110e005",
-        "version" : "0.4.29"
+        "branch" : "0.4.38b",
+        "revision" : "07048ef853a7758b5fbd9d10ad2a8bdf884ea4d8"
       }
     },
     {
