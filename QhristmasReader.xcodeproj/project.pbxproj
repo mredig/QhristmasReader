@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		33219EA62EF91E80007671A2 /* Hummingbird in Frameworks */ = {isa = PBXBuildFile; productRef = 33219EA52EF91E80007671A2 /* Hummingbird */; };
 		33D1E78E2D10E2760023D0A8 /* SwiftPizzaSnips in Frameworks */ = {isa = PBXBuildFile; productRef = 33D1E78D2D10E2760023D0A8 /* SwiftPizzaSnips */; };
 		33E5E4702CF867F9007155F7 /* VectorExtor in Frameworks */ = {isa = PBXBuildFile; productRef = 33E5E46F2CF867F9007155F7 /* VectorExtor */; };
 /* End PBXBuildFile section */
@@ -41,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33219EA62EF91E80007671A2 /* Hummingbird in Frameworks */,
 				33E5E4702CF867F9007155F7 /* VectorExtor in Frameworks */,
 				33D1E78E2D10E2760023D0A8 /* SwiftPizzaSnips in Frameworks */,
 			);
@@ -87,6 +89,7 @@
 			packageProductDependencies = (
 				33E5E46F2CF867F9007155F7 /* VectorExtor */,
 				33D1E78D2D10E2760023D0A8 /* SwiftPizzaSnips */,
+				33219EA52EF91E80007671A2 /* Hummingbird */,
 			);
 			productName = QhristmasReader;
 			productReference = 33E5E3E02CF82F1A007155F7 /* QhristmasReader.app */;
@@ -119,6 +122,7 @@
 			packageReferences = (
 				33E5E46E2CF867F9007155F7 /* XCRemoteSwiftPackageReference "VectorExtor" */,
 				33D1E78C2D10E2760023D0A8 /* XCRemoteSwiftPackageReference "SwiftPizzaSnips" */,
+				33219EA42EF91E80007671A2 /* XCRemoteSwiftPackageReference "hummingbird" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 33E5E3E12CF82F1A007155F7 /* Products */;
@@ -360,6 +364,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		33219EA42EF91E80007671A2 /* XCRemoteSwiftPackageReference "hummingbird" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hummingbird-project/hummingbird.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.18.3;
+			};
+		};
 		33D1E78C2D10E2760023D0A8 /* XCRemoteSwiftPackageReference "SwiftPizzaSnips" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mredig/SwiftPizzaSnips";
@@ -379,6 +391,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		33219EA52EF91E80007671A2 /* Hummingbird */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 33219EA42EF91E80007671A2 /* XCRemoteSwiftPackageReference "hummingbird" */;
+			productName = Hummingbird;
+		};
 		33D1E78D2D10E2760023D0A8 /* SwiftPizzaSnips */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 33D1E78C2D10E2760023D0A8 /* XCRemoteSwiftPackageReference "SwiftPizzaSnips" */;

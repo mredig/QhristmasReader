@@ -95,3 +95,8 @@ QhristmasReader/
 - Core Data for local persistence
 - JPEG compression at 0.85 quality for photos
 - Request timeout: 30 seconds for network operations
+
+## External Documentation
+- **Hummingbird**: https://docs.hummingbird.codes/2.0/documentation/hummingbird/gettingstarted/
+  - Server-side Swift framework for HTTP servers
+  - Being evaluated as replacement for MultipeerConnectivity data transport
