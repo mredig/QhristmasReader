@@ -169,6 +169,7 @@ extension LocalNetworkEngineServer {
 			.map(\.rawAddress)
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func handleRecipientListDTOsRequest(_ meta: RequestMeta) async throws -> [Recipient.DTO] {
 		let context = coreDataStack.mainContext
 
@@ -184,6 +185,7 @@ extension LocalNetworkEngineServer {
 		return recipientsInfo
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func handleRecipientListRequest(_ meta: RequestMeta) async throws -> [UUID: ListItemInfo] {
 		let context = coreDataStack.mainContext
 
@@ -203,6 +205,7 @@ extension LocalNetworkEngineServer {
 		return recipientsInfo
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func handleRecipientRequest(_ meta: RequestMeta) async throws -> Recipient.DTO {
 		guard
 			let idStr = meta.invocation.components[optional: 1],
@@ -220,6 +223,7 @@ extension LocalNetworkEngineServer {
 		}
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func handleGiftListRequest(_ meta: RequestMeta) async throws -> [UUID: ListItemInfo] {
 		let context = coreDataStack.mainContext
 
@@ -237,6 +241,7 @@ extension LocalNetworkEngineServer {
 		}
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func handleGiftRequest(_ meta: RequestMeta) async throws -> Gift.DTO {
 		guard
 			let idStr = meta.invocation.components[optional: 1],
@@ -262,6 +267,7 @@ extension LocalNetworkEngineServer {
 		return dto
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	struct GiftQueryResponse: Codable, Hashable, Sendable {
 		let queriedIDs: Set<UUID>
 		let matchingCrossover: Set<UUID>
@@ -270,6 +276,7 @@ extension LocalNetworkEngineServer {
 
 		let message: String?
 	}
+	@available(*, deprecated, message: "Use http now")
 	func handleGiftQuery(_ meta: RequestMeta, payload: Set<UUID>) async throws -> GiftQueryResponse {
 		guard
 			let idStr = meta.invocation.components[optional: 1],
@@ -313,18 +320,25 @@ extension LocalNetworkEngineServer {
 
 extension LocalNetworkEngine.Invocation {
 	static let getHostIP: Self = "getHostIP"
+	@available(*, deprecated, message: "Use http now")
 	static let listRecipientIDs: Self = "listRecipientIDs"
+	@available(*, deprecated, message: "Use http now")
 	static let listRecipients: Self = "listRecipients"
+	@available(*, deprecated, message: "Use http now")
 	static let listGiftIDs: Self = "listGiftIDs"
+	@available(*, deprecated, message: "Use http now")
 	static func getRecipient(id: UUID) -> Self {
 		"getRecipient/\(id.uuidString)"
 	}
+	@available(*, deprecated, message: "Use http now")
 	static func getGift(id: UUID) -> Self {
 		"getGift/\(id.uuidString)"
 	}
+	@available(*, deprecated, message: "Use http now")
 	static func giftQuery(giftID: UUID) -> Self {
 		"giftQuery/\(giftID.uuidString)"
 	}
+	@available(*, deprecated, message: "Use http now")
 	static let ping: Self = "ping"
 }
 

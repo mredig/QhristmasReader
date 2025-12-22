@@ -153,6 +153,7 @@ extension LocalNetworkEngineClient {
 		return try IPAddress(rawValue: ipString).unwrap(orThrow: ClientError.decodeError(message: "Invalid IP: \(ipString)"))
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func sendRecipientChangelistRequest() async throws -> [UUID: ListItemInfo] {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(
@@ -161,6 +162,7 @@ extension LocalNetworkEngineClient {
 		return try await sendRequest(request).response
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func sendRecipientListRequest() async throws -> [Recipient.DTO] {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(
@@ -169,6 +171,7 @@ extension LocalNetworkEngineClient {
 		return try await sendRequest(request).response
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func sendRetrieveRecipientRequest(_ recipientID: UUID) async throws -> Recipient.DTO {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(server: server.getSendableData(), invocation: .getRecipient(id: recipientID))
@@ -176,6 +179,7 @@ extension LocalNetworkEngineClient {
 		return try await sendRequest(request).response
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func sendGiftListRequest() async throws -> [UUID: ListItemInfo] {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(
@@ -184,6 +188,7 @@ extension LocalNetworkEngineClient {
 		return try await sendRequest(request).response
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func sendRetrieveGiftRequest(_ giftID: UUID) async throws -> Gift.DTO {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(server: server.getSendableData(), invocation: .getGift(id: giftID))
@@ -191,6 +196,7 @@ extension LocalNetworkEngineClient {
 		return try await sendRequest(request).response
 	}
 
+	@available(*, deprecated, message: "Use http now")
 	func sendGiftQuery(_ giftID: UUID, queriedRecipients: Set<UUID>) async throws -> LocalNetworkEngineServer.GiftQueryResponse {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(server: server.getSendableData(), invocation: .giftQuery(giftID: giftID), body: queriedRecipients)
