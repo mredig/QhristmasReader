@@ -25,9 +25,9 @@ struct SyncServerControlView: View {
 			}
 		}
 
-		let server: LocalNetworkEngineServer
+		let server: DiscoveryServer
 
-		init(server: LocalNetworkEngineServer) {
+		init(server: DiscoveryServer) {
 			self.isRunning = server.isRunning
 			self.server = server
 		}

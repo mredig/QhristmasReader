@@ -4,12 +4,12 @@ import SwiftUI
 
 class SyncViewController: UIHostingController<SyncView> {
 	let coreDataStack: CoreDataStack
-	private let syncClient: LocalNetworkEngineClient
+	private let syncClient: DiscoveryClient
 
 	let viewModel: SyncView.ViewModel
 
 	init(username: String, coreDataStack: CoreDataStack) async {
-		self.syncClient = LocalNetworkEngineClient(username: username)
+		self.syncClient = DiscoveryClient(username: username)
 		self.coreDataStack = coreDataStack
 
 		let vm = SyncView.ViewModel()
@@ -41,21 +41,21 @@ class SyncViewController: UIHostingController<SyncView> {
 		view.backgroundColor = .systemBackground
 	}
 
-	private func showBrowser(client: LocalNetworkEngineClient) {
+	private func showBrowser(client: DiscoveryClient) {
 		client.showBrowser(on: navigationController ?? self)
 	}
 }
 
-extension SyncViewController: LocalNetworkEngine.Delegate {
+extension SyncViewController: DiscoveryEngine.Delegate {
 	nonisolated
 	func localNetworkEngine(
-		_ localNetworkEngine: LocalNetworkEngine,
+		_ localNetworkEngine: DiscoveryEngine,
 		didStartConnectingToNewPeer peer: MCPeerID
 	) {}
 	
 	nonisolated
 	func localNetworkEngine(
-		_ localNetworkEngine: LocalNetworkEngine,
+		_ localNetworkEngine: DiscoveryEngine,
 		didConnectToNewPeer peer: MCPeerID
 	) {
 		Task { @MainActor in
@@ -84,7 +84,7 @@ extension SyncViewController: LocalNetworkEngine.Delegate {
 	
 	nonisolated
 	func localNetworkEngine(
-		_ localNetworkEngine: LocalNetworkEngine,
+		_ localNetworkEngine: DiscoveryEngine,
 		didDisconnectFromPeer peer: MCPeerID
 	) {
 		Task { @MainActor in

@@ -2,7 +2,7 @@
 @preconcurrency import SwiftPizzaSnips
 
 @Observable
-class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
+class DiscoveryServer: DiscoveryEngine, @unchecked Sendable {
 	private nonisolated let advertiser: MCNearbyServiceAdvertiser
 
 	let coreDataStack: CoreDataStack
@@ -52,7 +52,7 @@ class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 	}
 }
 
-extension LocalNetworkEngineServer: MCNearbyServiceAdvertiserDelegate {
+extension DiscoveryServer: MCNearbyServiceAdvertiserDelegate {
 	func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: any Error) {
 		print("\(#function): - \(error)")
 	}
@@ -65,7 +65,7 @@ extension LocalNetworkEngineServer: MCNearbyServiceAdvertiserDelegate {
 	}
 }
 
-extension LocalNetworkEngineServer {
+extension DiscoveryServer {
 	override func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
 		Task {
 			try await handleRawRequest(data, peer: peerID)
@@ -74,7 +74,7 @@ extension LocalNetworkEngineServer {
 }
 
 // these methods should actually go into something like a router, but it's late
-extension LocalNetworkEngineServer {
+extension DiscoveryServer {
 	struct RequestMeta: Codable, Sendable {
 		let server: MCPeerID.SendableDTO
 		let client: MCPeerID.SendableDTO
@@ -165,6 +165,6 @@ extension LocalNetworkEngineServer {
 	}
 }
 
-extension LocalNetworkEngine.Invocation {
+extension DiscoveryEngine.Invocation {
 	static let getHostIP: Self = "getHostIP"
 }

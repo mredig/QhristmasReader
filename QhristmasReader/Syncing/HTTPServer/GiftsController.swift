@@ -57,7 +57,7 @@ struct GiftsController {
 
 			guard
 				let gift = try? bgContext.fetch(fr).first
-			else { throw LocalNetworkEngineServer.ServerError.noMatchingGift }
+			else { throw DiscoveryServer.ServerError.noMatchingGift }
 
 			return gift.dto
 		}
@@ -81,7 +81,7 @@ struct GiftsController {
 
 			guard
 				let gift = try? bgContext.fetch(fr).first
-			else { throw LocalNetworkEngineServer.ServerError.noMatchingGift }
+			else { throw DiscoveryServer.ServerError.noMatchingGift }
 
 			let recips = gift.recipients.map(\.listDTO)
 			return (gift.dto, recips)

@@ -22,14 +22,14 @@ class GiverRootCoordinator: Coordinator {
 	unowned let delegate: Delegate
 
 	private var httpTask: Task<Void, Error>?
-	private var syncHost: LocalNetworkEngineServer
+	private var syncHost: DiscoveryServer
 
 	init(
 		parentCoordinator: (any Coordinator)?,
 		delegate: Delegate,
 		coreDataStack: CoreDataStack
 	) async {
-		async let syncHostLoad = LocalNetworkEngineServer(username: DefaultsManager.shared[.username], coreDataStack: coreDataStack)
+		async let syncHostLoad = DiscoveryServer(username: DefaultsManager.shared[.username], coreDataStack: coreDataStack)
 		self.parentCoordinator = parentCoordinator
 		self.delegate = delegate
 		self.coreDataStack = coreDataStack

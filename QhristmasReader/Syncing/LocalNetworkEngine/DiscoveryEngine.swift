@@ -1,12 +1,11 @@
 @preconcurrency import MultipeerConnectivity
 import SwiftPizzaSnips
 
-class LocalNetworkEngine: NSObject {
+class DiscoveryEngine: NSObject {
 	protocol Delegate: AnyObject {
-		func localNetworkEngine(_ localNetworkEngine: LocalNetworkEngine, didStartConnectingToNewPeer peer: MCPeerID)
-		func localNetworkEngine(_ localNetworkEngine: LocalNetworkEngine, didConnectToNewPeer peer: MCPeerID)
-		func localNetworkEngine(_ localNetworkEngine: LocalNetworkEngine, didDisconnectFromPeer peer: MCPeerID)
-
+		func localNetworkEngine(_ localNetworkEngine: DiscoveryEngine, didStartConnectingToNewPeer peer: MCPeerID)
+		func localNetworkEngine(_ localNetworkEngine: DiscoveryEngine, didConnectToNewPeer peer: MCPeerID)
+		func localNetworkEngine(_ localNetworkEngine: DiscoveryEngine, didDisconnectFromPeer peer: MCPeerID)
 	}
 
 	static let encoder: JSONEncoder = {
@@ -44,7 +43,7 @@ class LocalNetworkEngine: NSObject {
 	open func didDisconnect(from peer: MCPeerID) {}
 }
 
-extension LocalNetworkEngine: MCSessionDelegate {
+extension DiscoveryEngine: MCSessionDelegate {
 	nonisolated
 	func session(
 		_ session: MCSession,
@@ -96,7 +95,7 @@ extension LocalNetworkEngine: MCSessionDelegate {
 	) { print("\(#function) not implemented") }
 }
 
-extension LocalNetworkEngine {
+extension DiscoveryEngine {
 	static let defaultRequestTimeout: TimeInterval = 30
 
 	struct Request<T: Codable & Sendable>: Codable, Sendable {
@@ -115,7 +114,7 @@ extension LocalNetworkEngine {
 			server: MCPeerID.SendableDTO,
 			requestID: UUID = UUID(),
 			invocation: Invocation,
-			timeout: TimeInterval = LocalNetworkEngine.defaultRequestTimeout,
+			timeout: TimeInterval = DiscoveryEngine.defaultRequestTimeout,
 			headers: [String : String] = [:],
 			body: T
 		) {
@@ -146,11 +145,11 @@ extension LocalNetworkEngine {
 	struct Empty: Codable, Sendable, Hashable {}
 }
 
-extension LocalNetworkEngine.Request where T == Optional<LocalNetworkEngine.Empty> {
+extension DiscoveryEngine.Request where T == Optional<DiscoveryEngine.Empty> {
 	init(
 		server: MCPeerID.SendableDTO,
-		invocation: LocalNetworkEngine.Invocation,
-		timeout: TimeInterval = LocalNetworkEngine.defaultRequestTimeout,
+		invocation: DiscoveryEngine.Invocation,
+		timeout: TimeInterval = DiscoveryEngine.defaultRequestTimeout,
 		headers: [String: String] = [:]
 	) {
 		self.init(
@@ -163,10 +162,10 @@ extension LocalNetworkEngine.Request where T == Optional<LocalNetworkEngine.Empt
 	}
 }
 
-extension LocalNetworkEngine.Request: Equatable where T: Equatable {}
-extension LocalNetworkEngine.Request: Hashable where T: Hashable {}
+extension DiscoveryEngine.Request: Equatable where T: Equatable {}
+extension DiscoveryEngine.Request: Hashable where T: Hashable {}
 
-extension LocalNetworkEngine {
+extension DiscoveryEngine {
 	struct Response: Codable, Sendable {
 		let requestID: UUID
 
@@ -188,12 +187,12 @@ extension LocalNetworkEngine {
 			headers: [String : String],
 			body: T
 		) throws {
-			let data = try LocalNetworkEngine.encoder.encode(body)
+			let data = try DiscoveryEngine.encoder.encode(body)
 			self.init(requestID: requestID, invocation: invocation, headers: headers, body: data)
 		}
 
 		init<T: Codable>(
-			fromRequest meta: LocalNetworkEngineServer.RequestMeta,
+			fromRequest meta: DiscoveryServer.RequestMeta,
 			body: T
 		) throws {
 			try self.init(

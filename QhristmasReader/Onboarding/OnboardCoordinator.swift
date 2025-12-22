@@ -19,7 +19,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 
 	unowned let delegate: Delegate
 
-	private var clientEngine: LocalNetworkEngineClient?
+	private var clientEngine: DiscoveryClient?
 
 	init(
 		parentCoordinator: (any NavigationCoordinator)? = nil,
@@ -46,7 +46,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 
 	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
 
-	private func startHTTPClient(from syncClient: LocalNetworkEngineClient) async {
+	private func startHTTPClient(from syncClient: DiscoveryClient) async {
 		defer { syncClient.disconnect() }
 
 		do {
@@ -73,7 +73,7 @@ class OnboardCoordinator: NavigationChildCoordinator {
 	}
 }
 
-extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClient.Delegate {
+extension OnboardCoordinator: OnboardAppMode.Coordinator, DiscoveryClient.Delegate {
 	func onboardViewDidTapGivingButton(_ onboardView: OnboardAppMode) {
 		DefaultsManager.shared[.userMode] = .give
 
@@ -87,7 +87,7 @@ extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClie
 	func onboardViewDidTapOpeningButton(_ onboardView: OnboardAppMode) {
 		DefaultsManager.shared[.userMode] = .get
 
-		let engine = LocalNetworkEngineClient(username: "user_" + String.random(characterCount: 6))
+		let engine = DiscoveryClient(username: "user_" + String.random(characterCount: 6))
 		clientEngine = engine
 		engine.clientDelegate = self
 
@@ -96,7 +96,7 @@ extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClie
 	}
 
 	nonisolated
-	func localNetworkEngineClient(_ localNetworkEngineClient: LocalNetworkEngineClient, finishedWithEvent: LocalNetworkEngineClient.Event) {
+	func localNetworkEngineClient(_ localNetworkEngineClient: DiscoveryClient, finishedWithEvent: DiscoveryClient.Event) {
 		switch finishedWithEvent {
 		case .userTapDone, .connectionMade:
 			Task { @MainActor in

@@ -1,10 +1,10 @@
 @preconcurrency import MultipeerConnectivity
 @preconcurrency import SwiftPizzaSnips
 
-class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
+class DiscoveryClient: DiscoveryEngine, @unchecked Sendable {
 
 	protocol Delegate: AnyObject {
-		func localNetworkEngineClient(_ localNetworkEngineClient: LocalNetworkEngineClient, finishedWithEvent: Event)
+		func localNetworkEngineClient(_ localNetworkEngineClient: DiscoveryClient, finishedWithEvent: Event)
 	}
 
 	private let browserVC: MCBrowserViewController
@@ -62,7 +62,7 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 	}
 }
 
-extension LocalNetworkEngineClient: MCBrowserViewControllerDelegate {
+extension DiscoveryClient: MCBrowserViewControllerDelegate {
 	func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
 		Task { @MainActor in
 			browserViewController.dismiss(animated: true)
@@ -78,7 +78,7 @@ extension LocalNetworkEngineClient: MCBrowserViewControllerDelegate {
 	}
 }
 
-extension LocalNetworkEngineClient {
+extension DiscoveryClient {
 	override nonisolated func session(
 		_ session: MCSession,
 		didReceive data: Data,
@@ -146,7 +146,7 @@ extension LocalNetworkEngineClient {
 	}
 }
 
-extension LocalNetworkEngineClient {
+extension DiscoveryClient {
 	func sendHostAddressRequest() async throws -> URL {
 		guard let server else { throw ClientError.notConnected }
 
