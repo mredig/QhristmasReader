@@ -8,6 +8,7 @@ class DiscoveryClient: DiscoveryEngine, @unchecked Sendable {
 	}
 
 	private let browserVC: MCBrowserViewController
+	private let browserNavigationController: UINavigationController
 
 	private var pendingRequests: [UUID: CheckedContinuation<(Data, [String: String]), Error>] = [:]
 
@@ -20,6 +21,7 @@ class DiscoveryClient: DiscoveryEngine, @unchecked Sendable {
 		let browser = MCBrowserViewController(serviceType: Self.serviceTypeIdentifier, session: session)
 		self.browserVC = browser
 		browser.maximumNumberOfPeers = 1
+		self.browserNavigationController = UINavigationController(rootViewController: browser)
 
 		super.init(session: session)
 		browser.delegate = self
@@ -37,12 +39,12 @@ class DiscoveryClient: DiscoveryEngine, @unchecked Sendable {
 	func showBrowser(on parentVC: UIViewController) {
 		browserVC.title = "Select Event Host"
 		browserVC.navigationItem.largeTitleDisplayMode = .always
-		parentVC.present(browserVC, animated: true)
+		parentVC.present(browserNavigationController, animated: true)
 	}
 
 	@MainActor
 	func dismissBrowser() {
-		browserVC.dismiss(animated: true)
+		browserNavigationController.dismiss(animated: true)
 	}
 
 	override func didConnect(to peer: MCPeerID) {
