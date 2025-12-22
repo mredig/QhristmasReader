@@ -46,8 +46,8 @@ class GiverRootCoordinator: Coordinator {
 				Text("reset")
 			})
 		let vc = UIHostingController(rootView: placeholder)
-		vc.tabBarItem.title = "lorem"
-		vc.tabBarItem.image = UIImage(systemName: "circle")
+		vc.tabBarItem.title = "Data Reset"
+		vc.tabBarItem.image = UIImage(systemName: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90")
 
 		tabBarController.viewControllers = [
 			giverList.navigationController,

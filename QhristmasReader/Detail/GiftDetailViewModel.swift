@@ -17,6 +17,9 @@ class GiftDetailViewModel {
 	private(set) var isEditing = false
 	let canEdit: Bool
 
+	var isArchived: Bool
+	var isGiven: Bool
+
 	init(canEdit: Bool, imageID: UUID, coreDataStack: CoreDataStack) throws {
 		let imageURL = Gift.url(for: imageID)
 		let imageData = try Data(contentsOf: imageURL)
@@ -36,6 +39,8 @@ class GiftDetailViewModel {
 		self.gift = gift
 		self.image = image
 		self.coreDataStack = coreDataStack
+		self.isArchived = gift.isArchived
+		self.isGiven = gift.isGiven
 	}
 
 	func toggleEditState() {
@@ -47,6 +52,8 @@ class GiftDetailViewModel {
 		} else {
 			gift.update(label: .newValue(editingLabel.emptyIsNil))
 			gift.setRecipients(editingRecipients)
+			gift.isArchived = isArchived
+			gift.isGiven = isGiven
 
 			if let newRecipientName = newRecipient.emptyIsNil {
 				let newRecipient = Recipient(name: newRecipientName, context: coreDataStack.mainContext)

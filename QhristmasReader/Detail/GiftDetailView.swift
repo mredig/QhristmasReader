@@ -23,6 +23,9 @@ struct GiftDetailView: View {
 				if viewModel.isEditing {
 					TextField("Label", text: $viewModel.editingLabel)
 
+					Toggle(isOn: $viewModel.isGiven) { Text("Gift is Given") }
+					Toggle(isOn: $viewModel.isArchived) { Text("Archived") }
+
 					Section("Recipients") {
 						ForEach(viewModel.allRecipients()) { potentialRecipient in
 							Button(
@@ -47,6 +50,11 @@ struct GiftDetailView: View {
 					}
 				} else {
 					Text(viewModel.gift.label ?? "unlabeled")
+					Toggle(isOn: $viewModel.isGiven) { Text("Gift is Given") }
+						.disabled(true)
+					Toggle(isOn: $viewModel.isArchived) { Text("Archived") }
+						.disabled(true)
+
 					if viewModel.gift.recipients.isOccupied {
 						Text(viewModel.gift.recipients.compactMap(\.name).sorted().joined(separator: ", "))
 					}

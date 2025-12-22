@@ -19,36 +19,54 @@ struct StoredItemList: View {
 
 	var body: some View {
 		if let snapshot = viewModel.latestSnapshot, snapshot.numberOfItems > 0 {
-			List {
-				ForEach(snapshot.itemIdentifiers, id: \.self) { objectID in
-					let object = viewModel.fro.maybeObject(for: objectID)
+			VStack {
+				HStack {
+					Text("Show:")
+					Toggle(isOn: $viewModel.includeArchived, label: { Text("Archived") })
+					Toggle(isOn: $viewModel.includeGivenGifts, label: { Text("Given") })
+				}
+				.safeAreaPadding()
 
-					if
-						let object, let id = object.imageID, case let url = Gift.url(for: id) {
-						Button(
-							action: {
-								coordinator.storedItemList(self, didTapItem: url)
-							},
-							label: {
-								Text(label(for: object))
-							})
-						.swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
-							Button(role: .destructive) {
-								coordinator.storedItemList(self, didAttemptDeletionOf: objectID)
-							} label: {
-								Label("Archive", systemImage: "archivebox")
-							}
-						})
-						.swipeActions(edge: .leading, allowsFullSwipe: true, content: {
+				List {
+					ForEach(snapshot.itemIdentifiers, id: \.self) { objectID in
+						let object = viewModel.fro.maybeObject(for: objectID)
+
+						if
+							let object, let id = object.imageID, case let url = Gift.url(for: id) {
 							Button(
 								action: {
-									coordinator.storedItemList(self, markGiftAsGiven: objectID)
+									coordinator.storedItemList(self, didTapItem: url)
 								},
 								label: {
-									Text("Gift Given!")
+									HStack {
+										if object.isGiven {
+											Image(systemName: "envelope.open")
+										}
+										if object.isArchived {
+											Image(systemName: "archivebox.fill")
+										}
+
+										Text(label(for: object))
+									}
 								})
-							.foregroundStyle(.accent)
-						})
+							.swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
+								Button(role: .destructive) {
+									coordinator.storedItemList(self, didAttemptDeletionOf: objectID)
+								} label: {
+									Label("Archive", systemImage: "archivebox")
+								}
+							})
+							.swipeActions(edge: .leading, allowsFullSwipe: true, content: {
+								Button(
+									action: {
+										coordinator.storedItemList(self, markGiftAsGiven: objectID)
+									},
+									label: {
+										Text("Gift Given!")
+											.foregroundStyle(.accent)
+									})
+							})
+						}
 					}
 				}
 			}
