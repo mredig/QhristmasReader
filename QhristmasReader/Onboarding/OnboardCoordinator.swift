@@ -45,6 +45,32 @@ class OnboardCoordinator: NavigationChildCoordinator {
 	}
 
 	func coordinatorDidFinish(_ coordinator: any Coordinator) {}
+
+	private func startHTTPClient(from syncClient: LocalNetworkEngineClient) async {
+		defer { syncClient.disconnect() }
+
+		do {
+			let urlAddress = try await syncClient.sendHostAddressRequest()
+
+			let client = HTTPClient(baseURL: urlAddress)
+
+			let viewModel = OnboardRecipientSelectorView.ViewModel(client: client)
+
+			let next = OnboardRecipientSelectorView(coordinator: self, viewModel: viewModel)
+			let vc = UIHostingController(rootView: next)
+			vc.view.clipsToBounds = true
+
+			chainNavigationController?.pushViewController(vc, animated: true)
+		} catch {
+			print("Error retrieving ip: \(error)")
+
+			let alertVC = UIAlertController(title: "Error", message: "Can't communicate with server. Please try again.", preferredStyle: .alert)
+
+			alertVC.addAction(.init(title: "Ok", style: .default))
+
+			chainNavigationController?.present(alertVC, animated: true)
+		}
+	}
 }
 
 extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClient.Delegate {
@@ -75,7 +101,9 @@ extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClie
 		case .userTapDone, .connectionMade:
 			Task { @MainActor in
 				localNetworkEngineClient.dismissBrowser()
+				await startHTTPClient(from: localNetworkEngineClient)
 			}
+			break
 		case .userTapCancel:
 			return
 		}

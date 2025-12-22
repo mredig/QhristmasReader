@@ -98,13 +98,13 @@ struct OnboardRecipientSelectorView: OnboardView {
 			case error(Error)
 		}
 
-		let engine: LocalNetworkEngineClient
+		let client: HTTPClient
 		var state: CurrentState = .loading
 
 		var selection: Set<UUID> = []
 
-		init(engine: LocalNetworkEngineClient) {
-			self.engine = engine
+		init(client: HTTPClient) {
+			self.client = client
 
 			Task {
 				await load()
@@ -113,7 +113,8 @@ struct OnboardRecipientSelectorView: OnboardView {
 
 		private func load() async {
 			do {
-				let list = try await engine.sendRecipientListRequest()
+				let list = try await client.sendRecipientListRequest()
+					.sorted { $0.name < $1.name }
 				state = .loaded(list)
 			} catch {
 				print("Error loading recipient list: \(error)")

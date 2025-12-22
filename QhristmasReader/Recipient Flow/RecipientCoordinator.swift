@@ -12,13 +12,13 @@ class RecipientCoordinator: NavigationChildCoordinator {
 	}
 	private var recipientBase: UIHostingController<RecipientBaseView>!
 
-	let client: LocalNetworkEngineClient
-	let selectedRecipients: Set<Recipient.DTO>
+	let client: HTTPClient
+	let selectedRecipients: Set<Recipient.ListDTO>
 
 	init(
 		parentNavigationCoordinator: (any NavigationCoordinatorChain),
-		client: LocalNetworkEngineClient,
-		selectedRecipients: Set<Recipient.DTO>
+		client: HTTPClient,
+		selectedRecipients: Set<Recipient.ListDTO>
 	) {
 		self.parentNavigationCoordinator = parentNavigationCoordinator
 		self.client = client
@@ -53,8 +53,8 @@ extension RecipientCoordinator: QaptureController.Delegate {
 	func qaptureController(_ qaptureController: QaptureController, didCaptureID uuid: UUID) {
 		Task {
 			do {
-				let result = try await client.sendGiftQuery(uuid, queriedRecipients: Set(selectedRecipients.map(\.id)))
-				print(result)
+				let recipientsSet = Set(selectedRecipients.map(\.id))
+				let result = try await client.queryGift(id: uuid, for: recipientsSet)
 
 				let resultView = {
 					if result.matchingCrossover.isOccupied {
