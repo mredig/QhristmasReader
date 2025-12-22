@@ -91,6 +91,9 @@ extension LocalNetworkEngineServer {
 		do {
 			let response: Response
 			switch meta.invocation.components.first {
+			case Invocation.getHostIP.rawValue:
+				let ips = getLocalIPAddress()
+				response = try Response(fromRequest: meta, body: ips)
 			case Invocation.listRecipientIDs.rawValue:
 				let baseResponse = try await handleRecipientListRequest(meta)
 				response = try Response(fromRequest: meta, body: baseResponse)
@@ -123,6 +126,47 @@ extension LocalNetworkEngineServer {
 			let errorData = try encoder.encode(errorResponse)
 			try session.send(errorData, toPeers: [clientID], with: .reliable)
 		}
+	}
+
+	private func getLocalIPAddress() -> [String] {
+		var ifaddr: UnsafeMutablePointer<ifaddrs>?
+
+		guard getifaddrs(&ifaddr) == 0 else { return [] }
+		defer { freeifaddrs(ifaddr) }
+
+		var interfacePTR = ifaddr?.pointee
+
+		var interfaces: [IFAddrInfo] = []
+
+		while let interface = interfacePTR {
+			defer { interfacePTR = interface.ifa_next?.pointee }
+			guard let new = IFAddrInfo(from: interface) else {
+				print("Encountered failure")
+				continue
+			}
+			interfaces.append(new)
+		}
+
+		let ips = interfaces.filter {
+			$0.family != nil &&
+			$0.isUp &&
+			$0.isRunning &&
+			$0.isLoopback == false &&
+			$0.name.hasPrefix("en")
+		}
+
+		return ips
+			.sorted(by: {
+				switch ($0.family, $1.family) {
+				case (.ip4, .ip6), (.ip4, nil):
+					true
+				case (.ip4, .ip4), (.ip6, .ip6):
+					$0.name < $1.name
+				default:
+					false
+				}
+			})
+			.map(\.rawAddress)
 	}
 
 	func handleRecipientListDTOsRequest(_ meta: RequestMeta) async throws -> [Recipient.DTO] {
@@ -268,6 +312,7 @@ extension LocalNetworkEngineServer {
 
 
 extension LocalNetworkEngine.Invocation {
+	static let getHostIP: Self = "getHostIP"
 	static let listRecipientIDs: Self = "listRecipientIDs"
 	static let listRecipients: Self = "listRecipients"
 	static let listGiftIDs: Self = "listGiftIDs"
@@ -281,4 +326,67 @@ extension LocalNetworkEngine.Invocation {
 		"giftQuery/\(giftID.uuidString)"
 	}
 	static let ping: Self = "ping"
+}
+
+struct IFAddrInfo {
+	let isUp: Bool
+	let isRunning: Bool
+	let isLoopback: Bool
+
+	let familyRaw: UInt8
+	let family: Family?
+
+	enum Family {
+		case ip4
+		case ip6
+	}
+
+	let name: String
+
+	let rawAddress: String
+}
+
+extension IFAddrInfo {
+	init?(from interface: ifaddrs) {
+		let flags = interface.ifa_flags
+		let isUp = (flags & UInt32(IFF_UP)) != 0
+		let isRunning = (flags & UInt32(IFF_RUNNING)) != 0
+		let isLoopback = (flags & UInt32(IFF_LOOPBACK)) != 0
+
+		guard let addr = interface.ifa_addr else { return nil }
+		let familyRaw = addr.pointee.sa_family
+
+		let family: Family?
+		switch familyRaw {
+		case UInt8(AF_INET):
+			family = .ip4
+		case UInt8(AF_INET6):
+			family = .ip6
+		default: family = nil
+		}
+
+		let name = String(cString: interface.ifa_name)
+
+		var strCharArray = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+		let sockaddrSize = socklen_t(interface.ifa_addr.pointee.sa_len)
+		getnameinfo(
+			interface.ifa_addr,
+			sockaddrSize,
+			&strCharArray,
+			socklen_t(strCharArray.count),
+			nil,
+			socklen_t(0),
+			NI_NUMERICHOST)
+
+		let address = String(cString: &strCharArray)
+
+		self.init(
+			isUp: isUp,
+			isRunning: isRunning,
+			isLoopback: isLoopback,
+			familyRaw: familyRaw,
+			family: family,
+			name: name,
+			rawAddress: address)
+	}
 }

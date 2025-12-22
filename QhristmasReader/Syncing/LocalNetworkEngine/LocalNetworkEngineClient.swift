@@ -1,4 +1,5 @@
 @preconcurrency import MultipeerConnectivity
+@preconcurrency import SwiftPizzaSnips
 
 class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 
@@ -143,6 +144,15 @@ extension LocalNetworkEngineClient {
 //		let _: Void = try await sendRequest(request).response
 //	}
 
+	func sendHostAddressRequest() async throws -> IPAddress {
+		guard let server else { throw ClientError.notConnected }
+
+		let request = try Request(server: server.getSendableData(), invocation: .getHostIP)
+		let ipStrings: [String] = try await sendRequest(request).response
+		let ipString = try ipStrings.first.unwrap()
+		return try IPAddress(rawValue: ipString).unwrap(orThrow: ClientError.decodeError(message: "Invalid IP: \(ipString)"))
+	}
+
 	func sendRecipientChangelistRequest() async throws -> [UUID: ListItemInfo] {
 		guard let server else { throw ClientError.notConnected }
 		let request = try Request(
@@ -190,5 +200,6 @@ extension LocalNetworkEngineClient {
 
 	enum ClientError: Error {
 		case notConnected
+		case decodeError(message: String?)
 	}
 }
