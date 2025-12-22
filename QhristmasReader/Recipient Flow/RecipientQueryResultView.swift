@@ -14,36 +14,39 @@ struct RecipientQueryResultView: OnboardView {
 	let gradientColors: [Color] = []
 
 	var body: some View {
-		VStack(spacing: 8) {
-			switch result {
-			case .yours(let array):
-				headingText("Yay! This one is yours!", ofSize: 36)
-
-				if Set(array) != myDTOs {
-					headingText("Name(s) on gift:", ofSize: 18)
-
-					Text("\(array.map(\.name).joined(separator: ", "))")
-						.multilineTextAlignment(.center)
-						.lineLimit(0)
+		ZStack {
+			VStack(spacing: 8) {
+				switch result {
+				case .yours(let array):
+					headingText("Yay! This one is yours!", ofSize: 36)
+					
+					if Set(array) != myDTOs {
+						headingText("Name(s) on gift:", ofSize: 18)
+						
+						Text("\(array.map(\.name).joined(separator: ", "))")
+							.multilineTextAlignment(.center)
+							.lineLimit(0)
+					}
+					
+				case .others(let array):
+					headingText("Aww, gotta put this one back.", ofSize: 24)
+					
+					if let array {
+						Text("It's actually for \(array.map(\.name).joined(separator: ", "))")
+							.multilineTextAlignment(.center)
+							.lineLimit(0)
+					}
 				}
-
-			case .others(let array):
-				headingText("Aww, gotta put this one back.", ofSize: 24)
-
-				if let array {
-					Text("It's actually for \(array.map(\.name).joined(separator: ", "))")
+				
+				if let message {
+					Text(message)
 						.multilineTextAlignment(.center)
 						.lineLimit(0)
 				}
 			}
-
-			if let message {
-				Text(message)
-					.multilineTextAlignment(.center)
-					.lineLimit(0)
-			}
+			.padding()
+			.frame(maxWidth: .infinity, maxHeight: .infinity)
 		}
-		.padding()
 		.background {
 			switch result {
 			case .yours:
@@ -52,6 +55,6 @@ struct RecipientQueryResultView: OnboardView {
 				Color.gradientColorLightAlt
 			}
 		}
-		.frame(maxWidth: .infinity, maxHeight: .infinity)
+		.ignoresSafeArea()
 	}
 }

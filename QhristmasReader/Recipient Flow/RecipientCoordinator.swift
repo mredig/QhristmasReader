@@ -67,6 +67,7 @@ extension RecipientCoordinator: QaptureController.Delegate {
 				}()
 
 				let vc = UIHostingController(rootView: resultView)
+				vc.navigationItem.largeTitleDisplayMode = .inline
 
 				chainNavigationController?.pushViewController(vc, animated: true)
 			} catch {
