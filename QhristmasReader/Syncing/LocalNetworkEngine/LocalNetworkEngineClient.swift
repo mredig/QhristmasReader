@@ -7,7 +7,7 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 		func localNetworkEngineClient(_ localNetworkEngineClient: LocalNetworkEngineClient, finishedWithEvent: Event)
 	}
 
-	let browserVC: MCBrowserViewController
+	private let browserVC: MCBrowserViewController
 
 	private var pendingRequests: [UUID: CheckedContinuation<(Data, [String: String]), Error>] = [:]
 
@@ -35,7 +35,14 @@ class LocalNetworkEngineClient: LocalNetworkEngine, @unchecked Sendable {
 
 	@MainActor
 	func showBrowser(on parentVC: UIViewController) {
+		browserVC.title = "Select Event Host"
+		browserVC.navigationItem.largeTitleDisplayMode = .always
 		parentVC.present(browserVC, animated: true)
+	}
+
+	@MainActor
+	func dismissBrowser() {
+		browserVC.dismiss(animated: true)
 	}
 
 	override func didConnect(to peer: MCPeerID) {

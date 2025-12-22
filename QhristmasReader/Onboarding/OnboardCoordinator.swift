@@ -63,8 +63,6 @@ extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClie
 
 		let engine = LocalNetworkEngineClient(username: "user_" + String.random(characterCount: 6))
 		clientEngine = engine
-		engine.browserVC.title = "Select Event Host"
-		engine.browserVC.navigationItem.largeTitleDisplayMode = .always
 		engine.clientDelegate = self
 
 		guard let nav = chainNavigationController else { return }
@@ -76,15 +74,7 @@ extension OnboardCoordinator: OnboardAppMode.Coordinator, LocalNetworkEngineClie
 		switch finishedWithEvent {
 		case .userTapDone, .connectionMade:
 			Task { @MainActor in
-				localNetworkEngineClient.browserVC.dismiss(animated: true)
-
-				let viewModel = OnboardRecipientSelectorView.ViewModel(engine: localNetworkEngineClient)
-
-				let next = OnboardRecipientSelectorView(coordinator: self, viewModel: viewModel)
-				let vc = UIHostingController(rootView: next)
-				vc.view.clipsToBounds = true
-
-				chainNavigationController?.pushViewController(vc, animated: true)
+				localNetworkEngineClient.dismissBrowser()
 			}
 		case .userTapCancel:
 			return

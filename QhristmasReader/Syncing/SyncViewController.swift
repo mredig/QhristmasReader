@@ -63,7 +63,7 @@ extension SyncViewController: LocalNetworkEngine.Delegate {
 			do {
 				viewModel.peers.append(peer)
 
-				syncClient.browserVC.dismiss(animated: true)
+				syncClient.dismissBrowser()
 
 				let ipAddress = try await syncClient.sendHostAddressRequest()
 
