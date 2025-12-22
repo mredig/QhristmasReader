@@ -1,5 +1,5 @@
 import SwiftUI
-import SwiftPizzaSnips
+@preconcurrency import SwiftPizzaSnips
 
 @Observable
 @MainActor
@@ -21,7 +21,7 @@ class ScannerViewModel {
 
 	init(coreDataStack: CoreDataStack) throws {
 		let request = Gift.fetchRequest()
-		request.predicate = NSPredicate(format: "isArchived == NO")
+		request.predicate = NSPredicate(format: "isArchived == NO && isGiven == NO")
 		request.sortDescriptors = [
 			.init(keyPath: \Gift.label, ascending: true)
 		]

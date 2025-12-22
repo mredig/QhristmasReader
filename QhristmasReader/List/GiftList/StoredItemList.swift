@@ -8,6 +8,7 @@ struct StoredItemList: View {
 	protocol Coordinator: AnyObject {
 		func storedItemList(_ storedItemList: StoredItemList, didTapItem item: URL)
 		func storedItemList(_ storedItemList: StoredItemList, didAttemptDeletionOf objectID: NSManagedObjectID)
+		func storedItemList(_ storedItemList: StoredItemList, markGiftAsGiven objectID: NSManagedObjectID)
 	}
 
 	@State
@@ -31,13 +32,24 @@ struct StoredItemList: View {
 							label: {
 								Text(label(for: object))
 							})
+						.swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
+							Button(role: .destructive) {
+								coordinator.storedItemList(self, didAttemptDeletionOf: objectID)
+							} label: {
+								Label("Archive", systemImage: "archivebox")
+							}
+						})
+						.swipeActions(edge: .leading, allowsFullSwipe: true, content: {
+							Button(
+								action: {
+									coordinator.storedItemList(self, markGiftAsGiven: objectID)
+								},
+								label: {
+									Text("Gift Given!")
+								})
+							.foregroundStyle(.accent)
+						})
 					}
-				}
-				.onDelete { indices in
-					guard
-						let objectID = indices.first.map({ snapshot.itemIdentifiers[$0] })
-					else { return }
-					coordinator.storedItemList(self, didAttemptDeletionOf: objectID)
 				}
 			}
 		} else {

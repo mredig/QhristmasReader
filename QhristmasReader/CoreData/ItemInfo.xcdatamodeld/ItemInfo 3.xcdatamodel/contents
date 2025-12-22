@@ -4,6 +4,7 @@
         <attribute name="fromMe" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="imageID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isArchived" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isGiven" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="label" optional="YES" attributeType="String"/>
         <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="originID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>

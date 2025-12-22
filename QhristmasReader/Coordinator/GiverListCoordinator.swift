@@ -1,7 +1,7 @@
 import UIKit
 import SwiftUI
 import CoreData
-import SwiftPizzaSnips
+@preconcurrency import SwiftPizzaSnips
 
 class GiverListCoordinator: NSObject, NavigationCoordinator {
 
@@ -128,12 +128,33 @@ extension GiverListCoordinator: ListViewController.Coordinator {
 		}
 	}
 
+	func storedItemList(_ storedItemList: StoredItemList, markGiftAsGiven objectID: NSManagedObjectID) {
+		do {
+			try markAsGiven(objectWithID: objectID, scannerVM: storedItemList.viewModel)
+		} catch {
+			print("Error giving gift: \(error)")
+		}
+	}
+
 	private func deleteGift(objectWithID objectID: NSManagedObjectID, scannerVM: ScannerViewModel) throws {
 		let context = coreDataStack.mainContext
+		let fro = scannerVM.fro
 
 		try context.performAndWait {
-			let gift = try scannerVM.fro.object(for: objectID)
+			let gift = try fro.object(for: objectID)
 			gift.isArchived = true
+			gift.update()
+			try context.save()
+		}
+	}
+
+	private func markAsGiven(objectWithID objectID: NSManagedObjectID, scannerVM: ScannerViewModel) throws {
+		let context = coreDataStack.mainContext
+		let fro = scannerVM.fro
+
+		try context.performAndWait {
+			let gift = try fro.object(for: objectID)
+			gift.isGiven = true
 			gift.update()
 			try context.save()
 		}
