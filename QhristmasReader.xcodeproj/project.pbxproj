@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		330DD1D32EF9A6880092E036 /* NetworkHandler in Frameworks */ = {isa = PBXBuildFile; productRef = 330DD1D22EF9A6880092E036 /* NetworkHandler */; };
+		330DD1D82EF9A7E40092E036 /* NetworkHalpers in Frameworks */ = {isa = PBXBuildFile; productRef = 330DD1D72EF9A7E40092E036 /* NetworkHalpers */; };
+		330DD1DA2EF9A7E40092E036 /* NetworkHandlerURLSessionEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 330DD1D92EF9A7E40092E036 /* NetworkHandlerURLSessionEngine */; };
 		33219EA62EF91E80007671A2 /* Hummingbird in Frameworks */ = {isa = PBXBuildFile; productRef = 33219EA52EF91E80007671A2 /* Hummingbird */; };
 		33D1E78E2D10E2760023D0A8 /* SwiftPizzaSnips in Frameworks */ = {isa = PBXBuildFile; productRef = 33D1E78D2D10E2760023D0A8 /* SwiftPizzaSnips */; };
 		33E5E4702CF867F9007155F7 /* VectorExtor in Frameworks */ = {isa = PBXBuildFile; productRef = 33E5E46F2CF867F9007155F7 /* VectorExtor */; };
@@ -43,7 +46,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				33219EA62EF91E80007671A2 /* Hummingbird in Frameworks */,
+				330DD1DA2EF9A7E40092E036 /* NetworkHandlerURLSessionEngine in Frameworks */,
 				33E5E4702CF867F9007155F7 /* VectorExtor in Frameworks */,
+				330DD1D82EF9A7E40092E036 /* NetworkHalpers in Frameworks */,
+				330DD1D32EF9A6880092E036 /* NetworkHandler in Frameworks */,
 				33D1E78E2D10E2760023D0A8 /* SwiftPizzaSnips in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -51,10 +57,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		330DD1D62EF9A7E40092E036 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		33E5E3D72CF82F1A007155F7 = {
 			isa = PBXGroup;
 			children = (
 				33E5E3E22CF82F1A007155F7 /* QhristmasReader */,
+				330DD1D62EF9A7E40092E036 /* Frameworks */,
 				33E5E3E12CF82F1A007155F7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +104,9 @@
 				33E5E46F2CF867F9007155F7 /* VectorExtor */,
 				33D1E78D2D10E2760023D0A8 /* SwiftPizzaSnips */,
 				33219EA52EF91E80007671A2 /* Hummingbird */,
+				330DD1D22EF9A6880092E036 /* NetworkHandler */,
+				330DD1D72EF9A7E40092E036 /* NetworkHalpers */,
+				330DD1D92EF9A7E40092E036 /* NetworkHandlerURLSessionEngine */,
 			);
 			productName = QhristmasReader;
 			productReference = 33E5E3E02CF82F1A007155F7 /* QhristmasReader.app */;
@@ -123,6 +140,7 @@
 				33E5E46E2CF867F9007155F7 /* XCRemoteSwiftPackageReference "VectorExtor" */,
 				33D1E78C2D10E2760023D0A8 /* XCRemoteSwiftPackageReference "SwiftPizzaSnips" */,
 				33219EA42EF91E80007671A2 /* XCRemoteSwiftPackageReference "hummingbird" */,
+				330DD1CF2EF9A6880092E036 /* XCRemoteSwiftPackageReference "NetworkHandler" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 33E5E3E12CF82F1A007155F7 /* Products */;
@@ -364,6 +382,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		330DD1CF2EF9A6880092E036 /* XCRemoteSwiftPackageReference "NetworkHandler" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mredig/NetworkHandler";
+			requirement = {
+				branch = 3.0.0e;
+				kind = branch;
+			};
+		};
 		33219EA42EF91E80007671A2 /* XCRemoteSwiftPackageReference "hummingbird" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hummingbird-project/hummingbird.git";
@@ -391,6 +417,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		330DD1D22EF9A6880092E036 /* NetworkHandler */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 330DD1CF2EF9A6880092E036 /* XCRemoteSwiftPackageReference "NetworkHandler" */;
+			productName = NetworkHandler;
+		};
+		330DD1D72EF9A7E40092E036 /* NetworkHalpers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 330DD1CF2EF9A6880092E036 /* XCRemoteSwiftPackageReference "NetworkHandler" */;
+			productName = NetworkHalpers;
+		};
+		330DD1D92EF9A7E40092E036 /* NetworkHandlerURLSessionEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 330DD1CF2EF9A6880092E036 /* XCRemoteSwiftPackageReference "NetworkHandler" */;
+			productName = NetworkHandlerURLSessionEngine;
+		};
 		33219EA52EF91E80007671A2 /* Hummingbird */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 33219EA42EF91E80007671A2 /* XCRemoteSwiftPackageReference "hummingbird" */;
