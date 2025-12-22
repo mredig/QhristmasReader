@@ -1,13 +1,16 @@
 @preconcurrency import MultipeerConnectivity
 @preconcurrency import SwiftPizzaSnips
 
+@Observable
 class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 	private nonisolated let advertiser: MCNearbyServiceAdvertiser
 
 	let coreDataStack: CoreDataStack
 
+	private(set) var isRunning = false
+
 	@MainActor
-	init(
+	private init(
 		session: MCSession,
 		advertiser: MCNearbyServiceAdvertiser,
 		coreDataStack: CoreDataStack
@@ -28,10 +31,12 @@ class LocalNetworkEngineServer: LocalNetworkEngine, @unchecked Sendable {
 
 	func start() {
 		advertiser.startAdvertisingPeer()
+		isRunning = true
 	}
 
 	func stop() {
 		advertiser.stopAdvertisingPeer()
+		isRunning = false
 	}
 
 	override func didConnect(to peer: MCPeerID) {
