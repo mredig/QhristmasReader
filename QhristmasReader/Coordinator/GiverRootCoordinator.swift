@@ -29,7 +29,7 @@ class GiverRootCoordinator: Coordinator {
 		delegate: Delegate,
 		coreDataStack: CoreDataStack
 	) async {
-		async let syncHostLoad = LocalNetworkEngineServer(username: "Host", coreDataStack: coreDataStack)
+		async let syncHostLoad = LocalNetworkEngineServer(username: DefaultsManager.shared[.username], coreDataStack: coreDataStack)
 		self.parentCoordinator = parentCoordinator
 		self.delegate = delegate
 		self.coreDataStack = coreDataStack
