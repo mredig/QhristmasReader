@@ -99,7 +99,7 @@ extension OnboardCoordinator: OnboardGetGiverName.Coordinator {
 }
 
 extension OnboardCoordinator: OnboardRecipientSelectorView.Coordinator {
-	func onboardView(_ onboardView: OnboardRecipientSelectorView, didSelectRecipientsFromList recipients: Set<Recipient.DTO>) {
+	func onboardView(_ onboardView: OnboardRecipientSelectorView, didSelectRecipientsFromList recipients: Set<Recipient.ListDTO>) {
 		let coordinator = RecipientCoordinator(
 			parentNavigationCoordinator: self,
 			client: onboardView.viewModel.engine,

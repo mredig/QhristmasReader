@@ -4,12 +4,12 @@ struct RecipientQueryResultView: OnboardView {
 
 	let message: String?
 	enum Result {
-		case yours([Recipient.DTO])
-		case others([Recipient.DTO]?)
+		case yours([Recipient.ListDTO])
+		case others([Recipient.ListDTO]?)
 	}
 	let result: Result
 
-	let myDTOs: Set<Recipient.DTO>
+	let myDTOs: Set<Recipient.ListDTO>
 
 	let gradientColors: [Color] = []
 

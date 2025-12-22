@@ -4,7 +4,7 @@ import SwiftUI
 struct OnboardRecipientSelectorView: OnboardView {
 	@MainActor
 	protocol Coordinator: QhristmasReader.Coordinator {
-		func onboardView(_ onboardView: OnboardRecipientSelectorView, didSelectRecipientsFromList recipients: Set<Recipient.DTO>)
+		func onboardView(_ onboardView: OnboardRecipientSelectorView, didSelectRecipientsFromList recipients: Set<Recipient.ListDTO>)
 	}
 	unowned let coordinator: Coordinator
 
@@ -31,7 +31,7 @@ struct OnboardRecipientSelectorView: OnboardView {
 	}
 
 	@ViewBuilder
-	private func recipientList(_ list: [Recipient.DTO]) -> some View {
+	private func recipientList(_ list: [Recipient.ListDTO]) -> some View {
 		ScrollView {
 			LazyVStack {
 				headingText("Select yourself.", ofSize: 32)
@@ -62,7 +62,7 @@ struct OnboardRecipientSelectorView: OnboardView {
 	}
 
 	@ViewBuilder
-	private func recipientRow(_ recipient: Recipient.DTO) -> some View {
+	private func recipientRow(_ recipient: Recipient.ListDTO) -> some View {
 		VStack(alignment: .leading) {
 			HStack(alignment: .center) {
 				let name = viewModel.selection.contains(recipient.id) ? "checkmark.circle" : "circle"
@@ -94,7 +94,7 @@ struct OnboardRecipientSelectorView: OnboardView {
 	class ViewModel {
 		enum CurrentState {
 			case loading
-			case loaded([Recipient.DTO])
+			case loaded([Recipient.ListDTO])
 			case error(Error)
 		}
 

@@ -12,7 +12,7 @@ struct RecipientBaseView: OnboardView {
 		.gradientColorDarkAlt
 	]
 
-	let selectedRecipients: [Recipient.DTO]
+	let selectedRecipients: [Recipient.ListDTO]
 
 	unowned let coordinator: Coordinator
 
