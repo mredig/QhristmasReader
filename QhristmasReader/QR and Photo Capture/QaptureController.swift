@@ -183,7 +183,18 @@ class QaptureController: UIViewController {
 	private func setupQameraSession() {
 		guard captureSession == nil else { return }
 
-		guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
+		var priority: [() -> AVCaptureDevice?] = [
+			{ AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back) },
+			{ AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) },
+			{ AVCaptureDevice.default(for: .video) },
+		]
+
+		var device: AVCaptureDevice?
+		while device == nil, priority.isEmpty == false {
+			device = priority.popFirst()?()
+		}
+
+		guard let videoCaptureDevice = device else { return }
 		let videoInput: AVCaptureDeviceInput
 
 		do {
@@ -195,7 +206,8 @@ class QaptureController: UIViewController {
 		let captureSession = AVCaptureSession()
 		self.captureSession = captureSession
 
-		captureSession.sessionPreset = .hd1280x720
+		// keep on 640*480 - for whatever reason, qr capture works best here
+		captureSession.sessionPreset = .vga640x480
 		guard captureSession.canAddInput(videoInput) else { return }
 		captureSession.addInput(videoInput)
 
