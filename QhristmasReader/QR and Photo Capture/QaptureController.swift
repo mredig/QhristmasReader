@@ -18,7 +18,8 @@ class QaptureController: UIViewController {
 
 	private let cameraView = UIView()
 	private let scannerImageView: UIView
-	private let radarPulseLayer = CAGradientLayer()
+	private let radarPulseLayer1 = CAGradientLayer()
+	private let radarPulseLayer2 = CAGradientLayer()
 
 	weak var delegate: Delegate?
 
@@ -105,16 +106,27 @@ class QaptureController: UIViewController {
 	private func setupRadarPulse() {
 		let color = UIColor.systemGreen
 
-		// Setup gradient layer for radar pulse
-		radarPulseLayer.type = .radial
-		radarPulseLayer.colors = [
+		// Setup first gradient layer
+		radarPulseLayer1.type = .radial
+		radarPulseLayer1.colors = [
 			color.withAlphaComponent(0).cgColor,
 			color.withAlphaComponent(0.6).cgColor,
 			color.withAlphaComponent(0.3).cgColor,
 			color.withAlphaComponent(0).cgColor
 		]
-		radarPulseLayer.locations = [0.45, 0.97, 0.99, 1.0]
-		view.layer.insertSublayer(radarPulseLayer, at: 0)
+		radarPulseLayer1.locations = [0.45, 0.97, 0.99, 1.0]
+		view.layer.insertSublayer(radarPulseLayer1, at: 0)
+		
+		// Setup second gradient layer (identical)
+		radarPulseLayer2.type = .radial
+		radarPulseLayer2.colors = [
+			color.withAlphaComponent(0).cgColor,
+			color.withAlphaComponent(0.6).cgColor,
+			color.withAlphaComponent(0.3).cgColor,
+			color.withAlphaComponent(0).cgColor
+		]
+		radarPulseLayer2.locations = [0.45, 0.97, 0.99, 1.0]
+		view.layer.insertSublayer(radarPulseLayer2, at: 0)
 		
 		// Start the animation
 		startRadarPulseAnimation()
@@ -123,15 +135,24 @@ class QaptureController: UIViewController {
 	private func startRadarPulseAnimation() {
 		let center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
 		let maxDimension = max(view.bounds.width, view.bounds.height)
+		let duration: CFTimeInterval = 2.5
 		
+		// Animate first layer
+		animateRadarLayer(radarPulseLayer1, center: center, maxDimension: maxDimension, duration: duration, timeOffset: 0)
+		
+		// Animate second layer with offset (half the duration)
+		animateRadarLayer(radarPulseLayer2, center: center, maxDimension: maxDimension, duration: duration, timeOffset: duration / 2)
+	}
+	
+	private func animateRadarLayer(_ layer: CAGradientLayer, center: CGPoint, maxDimension: CGFloat, duration: CFTimeInterval, timeOffset: CFTimeInterval) {
 		// Position gradient at center, starting small
-		radarPulseLayer.startPoint = CGPoint(x: 0.5, y: 0.5)
-		radarPulseLayer.endPoint = CGPoint(x: 1.0, y: 1.0)
+		layer.startPoint = CGPoint(x: 0.5, y: 0.5)
+		layer.endPoint = CGPoint(x: 1.0, y: 1.0)
 		
 		// Set initial bounds to a small size at center
 		let initialSize: CGFloat = 0
-		radarPulseLayer.bounds = CGRect(x: 0, y: 0, width: initialSize, height: initialSize)
-		radarPulseLayer.position = center
+		layer.bounds = CGRect(x: 0, y: 0, width: initialSize, height: initialSize)
+		layer.position = center
 		
 		// Bounds animation (expand from center)
 		let boundsAnimation = CABasicAnimation(keyPath: "bounds")
@@ -146,15 +167,17 @@ class QaptureController: UIViewController {
 		// Group animations
 		let animationGroup = CAAnimationGroup()
 		animationGroup.animations = [boundsAnimation, opacityAnimation]
-		animationGroup.duration = 1.8
+		animationGroup.duration = duration
 		animationGroup.repeatCount = .infinity
 		animationGroup.timingFunction = CAMediaTimingFunction(name: .easeOut)
+		animationGroup.timeOffset = timeOffset
 		
-		radarPulseLayer.add(animationGroup, forKey: "radarPulse")
+		layer.add(animationGroup, forKey: "radarPulse")
 	}
 	
 	private func stopRadarPulseAnimation() {
-		radarPulseLayer.removeAnimation(forKey: "radarPulse")
+		radarPulseLayer1.removeAnimation(forKey: "radarPulse")
+		radarPulseLayer2.removeAnimation(forKey: "radarPulse")
 	}
 
 	private func setupQameraSession() {
@@ -226,7 +249,7 @@ class QaptureController: UIViewController {
 		previewLayer?.frame = view.layer.bounds
 		
 		// Update radar pulse center on layout changes
-		if radarPulseLayer.animation(forKey: "radarPulse") != nil {
+		if radarPulseLayer1.animation(forKey: "radarPulse") != nil {
 			stopRadarPulseAnimation()
 			startRadarPulseAnimation()
 		}
