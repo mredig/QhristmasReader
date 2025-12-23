@@ -18,6 +18,7 @@ class QaptureController: UIViewController {
 
 	private let cameraView = UIView()
 	private let scannerImageView: UIView
+	private let radarPulseLayer = CAGradientLayer()
 
 	weak var delegate: Delegate?
 
@@ -62,6 +63,9 @@ class QaptureController: UIViewController {
 		constraints += view.constrain(instructionsLabel, inset: NSDirectionalEdgeInsets(scalar: 24))
 		constraints += view.constrain(cameraView)
 
+		// Setup radar pulse animation
+		setupRadarPulse()
+
 		cameraView.addSubview(scannerImageView)
 		cameraView.isHidden = true
 		constraints += cameraView.constrain(scannerImageView)
@@ -96,6 +100,61 @@ class QaptureController: UIViewController {
 			name: .AVCaptureSessionWasInterrupted,
 			object: captureSession
 		)
+	}
+
+	private func setupRadarPulse() {
+		let color = UIColor.systemGreen
+
+		// Setup gradient layer for radar pulse
+		radarPulseLayer.type = .radial
+		radarPulseLayer.colors = [
+			color.withAlphaComponent(0).cgColor,
+			color.withAlphaComponent(0.6).cgColor,
+			color.withAlphaComponent(0.3).cgColor,
+			color.withAlphaComponent(0).cgColor
+		]
+		radarPulseLayer.locations = [0.45, 0.97, 0.99, 1.0]
+		view.layer.insertSublayer(radarPulseLayer, at: 0)
+		
+		// Start the animation
+		startRadarPulseAnimation()
+	}
+	
+	private func startRadarPulseAnimation() {
+		let center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+		let maxDimension = max(view.bounds.width, view.bounds.height)
+		
+		// Position gradient at center, starting small
+		radarPulseLayer.startPoint = CGPoint(x: 0.5, y: 0.5)
+		radarPulseLayer.endPoint = CGPoint(x: 1.0, y: 1.0)
+		
+		// Set initial bounds to a small size at center
+		let initialSize: CGFloat = 0
+		radarPulseLayer.bounds = CGRect(x: 0, y: 0, width: initialSize, height: initialSize)
+		radarPulseLayer.position = center
+		
+		// Bounds animation (expand from center)
+		let boundsAnimation = CABasicAnimation(keyPath: "bounds")
+		boundsAnimation.fromValue = CGRect(x: 0, y: 0, width: 0, height: 0)
+		boundsAnimation.toValue = CGRect(x: 0, y: 0, width: maxDimension * 2, height: maxDimension * 2)
+		
+		// Opacity animation (fade out)
+		let opacityAnimation = CABasicAnimation(keyPath: "opacity")
+		opacityAnimation.fromValue = 0.8
+		opacityAnimation.toValue = 0.0
+		
+		// Group animations
+		let animationGroup = CAAnimationGroup()
+		animationGroup.animations = [boundsAnimation, opacityAnimation]
+		animationGroup.duration = 1.8
+		animationGroup.repeatCount = .infinity
+		animationGroup.timingFunction = CAMediaTimingFunction(name: .easeOut)
+		
+		radarPulseLayer.add(animationGroup, forKey: "radarPulse")
+	}
+	
+	private func stopRadarPulseAnimation() {
+		radarPulseLayer.removeAnimation(forKey: "radarPulse")
 	}
 
 	private func setupQameraSession() {
@@ -147,11 +206,13 @@ class QaptureController: UIViewController {
 		switch sender.state {
 		case .began:
 			cameraView.isHidden = false
+			stopRadarPulseAnimation()
 			Task.detached { [captureSession] in
 				captureSession?.startRunning()
 			}
 		case .ended, .cancelled, .failed:
 			cameraView.isHidden = true
+			startRadarPulseAnimation()
 			Task.detached { [captureSession] in
 				captureSession?.stopRunning()
 			}
@@ -163,6 +224,12 @@ class QaptureController: UIViewController {
 		super.viewWillLayoutSubviews()
 
 		previewLayer?.frame = view.layer.bounds
+		
+		// Update radar pulse center on layout changes
+		if radarPulseLayer.animation(forKey: "radarPulse") != nil {
+			stopRadarPulseAnimation()
+			startRadarPulseAnimation()
+		}
 	}
 
 	override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
