@@ -17,18 +17,23 @@ class QaptureController: UIViewController {
 	}
 
 	private let cameraView = UIView()
+	private let scannerImageView: UIView
 
 	weak var delegate: Delegate?
 
 	private var lastCapture: Date = .distantPast
 
-	private let captureSession: AVCaptureSession
+	private var captureSession: AVCaptureSession?
 
 	var vibrateOnIDRecognition = true
 
 	init() {
-		let captureSession = AVCaptureSession()
-		self.captureSession = captureSession
+		let scannerImage = UIImage.barcodeScanner
+		let scannerImageView = UIImageView(image: scannerImage).with {
+			$0.contentMode = .scaleAspectFit
+		}
+		self.scannerImageView = scannerImageView
+
 		super.init(nibName: nil, bundle: nil)
 	}
 	
@@ -57,13 +62,44 @@ class QaptureController: UIViewController {
 		constraints += view.constrain(instructionsLabel, inset: NSDirectionalEdgeInsets(scalar: 24))
 		constraints += view.constrain(cameraView)
 
-		let scannerImage = UIImage.barcodeScanner
-		let scannerImageView = UIImageView(image: scannerImage).with {
-			$0.contentMode = .scaleAspectFit
-		}
 		cameraView.addSubview(scannerImageView)
 		cameraView.isHidden = true
 		constraints += cameraView.constrain(scannerImageView)
+
+		setupQameraSession()
+
+		let outline = CAShapeLayer()
+		outline.strokeColor = UIColor.systemBlue.cgColor
+		outline.fillColor = UIColor.clear.cgColor
+		outline.lineWidth = 3
+		outline.frame = view.layer.bounds
+		self.outlineLayer = outline
+		cameraView.layer.addSublayer(outline)
+
+		let tap = UILongPressGestureRecognizer(target: self, action: #selector(cameraToggleTap))
+		tap.minimumPressDuration = 0
+		view.addGestureRecognizer(tap)
+
+		cameraView.bringSubviewToFront(scannerImageView)
+
+		// Add session runtime error observation
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleSessionRuntimeError),
+			name: .AVCaptureSessionRuntimeError,
+			object: captureSession
+		)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleSessionWasInterrupted),
+			name: .AVCaptureSessionWasInterrupted,
+			object: captureSession
+		)
+	}
+
+	private func setupQameraSession() {
+		guard captureSession == nil else { return }
 
 		guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
 		let videoInput: AVCaptureDeviceInput
@@ -74,7 +110,10 @@ class QaptureController: UIViewController {
 			return
 		}
 
-		captureSession.sessionPreset = .vga640x480
+		let captureSession = AVCaptureSession()
+		self.captureSession = captureSession
+
+		captureSession.sessionPreset = .hd1280x720
 		guard captureSession.canAddInput(videoInput) else { return }
 		captureSession.addInput(videoInput)
 
@@ -90,19 +129,17 @@ class QaptureController: UIViewController {
 		cameraView.layer.addSublayer(previewLayer)
 		self.previewLayer = previewLayer
 
-		let outline = CAShapeLayer()
-		outline.strokeColor = UIColor.systemBlue.cgColor
-		outline.fillColor = UIColor.clear.cgColor
-		outline.lineWidth = 3
-		outline.frame = view.layer.bounds
-		self.outlineLayer = outline
-		cameraView.layer.addSublayer(outline)
-
-		let tap = UILongPressGestureRecognizer(target: self, action: #selector(cameraToggleTap))
-		tap.minimumPressDuration = 0
-		view.addGestureRecognizer(tap)
-
 		cameraView.bringSubviewToFront(scannerImageView)
+	}
+
+	private func cleanupQameraSession() {
+		if let previewLayer {
+			previewLayer.removeFromSuperlayer()
+			self.previewLayer = nil
+		}
+
+		captureSession?.stopRunning()
+		captureSession = nil
 	}
 
 	@objc
@@ -111,12 +148,12 @@ class QaptureController: UIViewController {
 		case .began:
 			cameraView.isHidden = false
 			Task.detached { [captureSession] in
-				captureSession.startRunning()
+				captureSession?.startRunning()
 			}
 		case .ended, .cancelled, .failed:
 			cameraView.isHidden = true
 			Task.detached { [captureSession] in
-				captureSession.stopRunning()
+				captureSession?.stopRunning()
 			}
 		default: break
 		}
@@ -135,6 +172,41 @@ class QaptureController: UIViewController {
 			print(context.percentComplete)
 			previewLayer?.frame = view.layer.bounds
 		}
+	}
+
+	@objc
+	private func handleSessionRuntimeError(_ notification: Notification) {
+		guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
+			return
+		}
+
+		print("Capture session runtime error: \(error)")
+		showErrorAlert(message: "error: \(error)", showRetry: true)
+	}
+
+	@objc
+	private func handleSessionWasInterrupted(_ notification: Notification) {
+		print("Capture session was interrupted")
+		showErrorAlert(message: "interrupted", showRetry: false)
+	}
+
+	private func showErrorAlert(message: String, showRetry: Bool) {
+		let alertVC = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+		alertVC.addAction(UIAlertAction(title: "Ok", style: .default))
+
+		if showRetry {
+			alertVC.addAction(UIAlertAction(title: "Retry", style: .destructive, handler: { [weak self] _ in
+				self?.cleanupQameraSession()
+
+				self?.setupQameraSession()
+			}))
+		}
+
+		present(alertVC, animated: true)
+	}
+
+	deinit {
+		NotificationCenter.default.removeObserver(self)
 	}
 }
 
