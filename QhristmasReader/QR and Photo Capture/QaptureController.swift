@@ -345,6 +345,8 @@ extension QaptureController: AVCaptureMetadataOutputObjectsDelegate {
 	//			outlineLayer?.path = nil
 	//		}
 
+			captureSession?.stopRunning()
+
 			if vibrateOnIDRecognition {
 				AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
 			}
