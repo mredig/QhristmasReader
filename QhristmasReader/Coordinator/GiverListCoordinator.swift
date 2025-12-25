@@ -178,7 +178,7 @@ extension GiverListCoordinator: ScannerViewModel.Delegate {
 		picker.delegate = self
 		picker.isModalInPresentation = true
 		picker.modalPresentationStyle = .fullScreen
-		chainNavigationController?.present(picker, animated: true)
+		childCoordinators.first?.rootController.present(picker, animated: true)
 	}
 }
 

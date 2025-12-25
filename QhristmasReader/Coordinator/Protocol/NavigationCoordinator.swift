@@ -46,6 +46,8 @@ extension NavigationCoordinator {
 		didShow viewController: UIViewController,
 		animated: Bool
 	) {
+		guard navigationController === self.navigationController else { return }
+
 		defer { previousViewControllers = navigationController.viewControllers }
 
 		guard navigationController.viewControllers.count < previousViewControllers.count else { return }
