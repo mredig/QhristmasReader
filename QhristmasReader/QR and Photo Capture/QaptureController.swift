@@ -21,6 +21,10 @@ class QaptureController: UIViewController {
 	private let radarPulseLayer1 = CAGradientLayer()
 	private let radarPulseLayer2 = CAGradientLayer()
 
+	private let tabBarToggleButton: UIBarButtonItem
+	private var keepCameraOn = false
+	private var showCamera = false
+
 	weak var delegate: Delegate?
 
 	private var lastCapture: Date = .distantPast
@@ -36,6 +40,8 @@ class QaptureController: UIViewController {
 		}
 		self.scannerImageView = scannerImageView
 
+		self.tabBarToggleButton = UIBarButtonItem(systemItem: .camera)
+
 		super.init(nibName: nil, bundle: nil)
 	}
 	
@@ -48,6 +54,12 @@ class QaptureController: UIViewController {
 
 		title = "Code Scanner"
 		navigationItem.largeTitleDisplayMode = .never
+		let toggle = UIAction(title: "Toggle Camera") { [weak self] _ in
+			self?.keepCameraOn.toggle()
+			self?.updateCamera()
+		}
+		tabBarToggleButton.menu = UIMenu(children: [toggle])
+		navigationItem.rightBarButtonItem = tabBarToggleButton
 		view.backgroundColor = .systemBackground
 
 		var constraints: [NSLayoutConstraint] = []
@@ -240,18 +252,29 @@ class QaptureController: UIViewController {
 	private func cameraToggleTap(_ sender: UIGestureRecognizer) {
 		switch sender.state {
 		case .began:
+			showCamera = true
+		case .ended, .cancelled, .failed:
+			showCamera = false
+		default: break
+		}
+		updateCamera()
+	}
+
+	private func updateCamera() {
+		if showCamera || keepCameraOn {
+			guard cameraView.isHidden == true else { return }
 			cameraView.isHidden = false
 			stopRadarPulseAnimation()
 			Task.detached { [captureSession] in
 				captureSession?.startRunning()
 			}
-		case .ended, .cancelled, .failed:
+		} else {
+			guard cameraView.isHidden == false else { return }
 			cameraView.isHidden = true
 			startRadarPulseAnimation()
 			Task.detached { [captureSession] in
 				captureSession?.stopRunning()
 			}
-		default: break
 		}
 	}
 
