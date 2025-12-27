@@ -115,6 +115,17 @@ class QaptureController: UIViewController {
 		)
 	}
 
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+
+		guard showCamera else { return }
+		updateCamera()
+
+		Task.detached { [captureSession] in
+			captureSession?.startRunning()
+		}
+	}
+
 	private func setupRadarPulse() {
 		let color = UIColor.systemGreen
 
@@ -262,19 +273,19 @@ class QaptureController: UIViewController {
 
 	private func updateCamera() {
 		if showCamera || keepCameraOn {
-			guard cameraView.isHidden == true else { return }
-			cameraView.isHidden = false
-			stopRadarPulseAnimation()
 			Task.detached { [captureSession] in
 				captureSession?.startRunning()
 			}
+			guard cameraView.isHidden == true else { return }
+			cameraView.isHidden = false
+			stopRadarPulseAnimation()
 		} else {
-			guard cameraView.isHidden == false else { return }
-			cameraView.isHidden = true
-			startRadarPulseAnimation()
 			Task.detached { [captureSession] in
 				captureSession?.stopRunning()
 			}
+			guard cameraView.isHidden == false else { return }
+			cameraView.isHidden = true
+			startRadarPulseAnimation()
 		}
 	}
 
