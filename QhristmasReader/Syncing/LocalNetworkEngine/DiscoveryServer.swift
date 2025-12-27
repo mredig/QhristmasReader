@@ -13,6 +13,8 @@ class DiscoveryServer: DiscoveryEngine, @unchecked Sendable {
 		}
 	}
 
+	private var maintainer: Task<Void, Never>?
+
 	@MainActor
 	private init(
 		session: MCSession,
@@ -36,6 +38,19 @@ class DiscoveryServer: DiscoveryEngine, @unchecked Sendable {
 	func start() {
 		advertiser.startAdvertisingPeer()
 		isRunning = true
+
+		maintainer = Task {
+			while Task.isCancelled == false {
+				do {
+					try await Task.sleep(for: .seconds(120))
+					guard Task.isCancelled == false, isRunning else { return }
+					advertiser.stopAdvertisingPeer()
+					advertiser.startAdvertisingPeer()
+				} catch {
+					return
+				}
+			}
+		}
 	}
 
 	func stop() {
