@@ -7,7 +7,11 @@ class DiscoveryServer: DiscoveryEngine, @unchecked Sendable {
 
 	let coreDataStack: CoreDataStack
 
-	private(set) var isRunning = false
+	private(set) var isRunning = false {
+		didSet {
+			UIApplication.shared.isIdleTimerDisabled = isRunning
+		}
+	}
 
 	@MainActor
 	private init(
